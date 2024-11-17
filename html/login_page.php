@@ -21,7 +21,8 @@
                 <form action="login.php" class="login-form" method="post">
 
 <?php
-include 'environment_constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/environment_constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/php_utils.php';
 $invalid_login_alert_message = <<<EOT
                     <div class="alert alert-danger">
                         Wrong username or password, please try again

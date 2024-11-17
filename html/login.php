@@ -1,5 +1,6 @@
 <?php
-include 'environment_constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/environment_constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/php_utils.php';
 
 // MySQL database information
 $servername = "mariadb";
@@ -31,6 +32,7 @@ if ($result->num_rows > 0) {
         session_start();
         $_SESSION[USERNAME] = $user_input;
         $_SESSION[USERID] = $row[USERID];
+        $_SESSION[AUTHORITY] = $row[AUTHORITY];
     } else {
         header("Location: login_page.php?".ALERT."=".ALERT_INVALID_LOGIN);
     }

@@ -1,5 +1,6 @@
 <?php
-include 'environment_constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/environment_constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/php_utils.php';
 session_start();
 if (!isset($_SESSION[USERNAME])) {
     header("Location: login_page.php");
