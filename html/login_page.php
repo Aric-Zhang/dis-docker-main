@@ -16,7 +16,7 @@
         <div class="login-container">
             <div class="login-form">
                 <div class="login-logo">
-                    <img class="img-fluid" src="images/UoN-Nottingham-Blue.png" alt="Logo Image">
+                    <img class="img-fluid" src="images/tvis.png" alt="Logo Image">
                 </div>
                 <form action="login.php" class="login-form" method="post">
 
@@ -42,7 +42,7 @@ if (isset($_GET[ALERT])){
                         <input type="password" name=<?php echo PASSWORD; ?> class="form-control form-control-lg" placeholder="Password">
                     </div>
                     <div class="login-form-submit form group">
-                        <button class="btn btn-primary btn-lg" type="submit">Log in</button>
+                        <button class="btn btn-primary btn-lg" style="width: 100%" type="submit">Log in</button>
                     </div>
                 </form>
             </div>

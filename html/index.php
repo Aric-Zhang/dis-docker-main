@@ -5,6 +5,6 @@ if (!isset($_SESSION[USERNAME])) {
     header("Location: login_page.php");
 }
 else{
-    header( "Location: index_2.php");
+    header( "Location: coursework2/navi_page.php");
 }
 ?>

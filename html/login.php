@@ -27,7 +27,7 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     if ($pass_input === $row[PASSWORD]) {
-        header("Location: index_2.php");
+        header("Location: coursework2/navi_page.php");
         session_start();
         $_SESSION[USERNAME] = $user_input;
         $_SESSION[USERID] = $row[USERID];
