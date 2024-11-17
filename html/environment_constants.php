@@ -8,5 +8,7 @@ const AUTHORITY = "Authority";
 const  AUTHORITY_ADMIN = "Administrator";
 const  AUTHORITY_POLICE_OFFICER = "PoliceOfficer";
 const USERID = "ID";
-const IMAGE_DIR = 'images/'
+const IMAGE_DIR = 'images/';
+const LOGIN_PAGE_PATH = 'coursework2/login_page.php';
+const NAVI_PAGE_PATH= 'coursework2/navi_page.php';
 ?>

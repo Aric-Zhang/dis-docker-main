@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DIS Entrance Page</title>
     <style>
-        @import "css/dis_cw2_common.css";
+        @import "../css/dis_cw2_common.css";
         .login-container .login-logo {
             justify-content: left;
             margin-bottom: 3rem;
@@ -16,13 +16,13 @@
         <div class="login-container">
             <div class="login-form">
                 <div class="login-logo">
-                    <img class="img-fluid" src="images/tvis.png" alt="Logo Image">
+                    <img class="img-fluid" src="../images/tvis.png" alt="Logo Image">
                 </div>
-                <form action="login.php" class="login-form" method="post">
+                <form action="../login.php" class="login-form" method="post">
 
 <?php
-include_once $_SERVER['DOCUMENT_ROOT'].'/environment_constants.php';
-include_once $_SERVER['DOCUMENT_ROOT'].'/php_utils.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/environment_constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/php_utils.php';
 $invalid_login_alert_message = <<<EOT
                     <div class="alert alert-danger">
                         Wrong username or password, please try again

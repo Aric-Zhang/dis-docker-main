@@ -9,6 +9,4 @@ function get_relative_path_to_root()
     }
     return $relative_path_to_root;
 }
-
-
 ?>
