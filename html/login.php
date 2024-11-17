@@ -31,14 +31,11 @@ if ($result->num_rows > 0) {
         session_start();
         $_SESSION[USERNAME] = $user_input;
         $_SESSION[USERID] = $row[USERID];
-        die();
     } else {
         header("Location: login_page.php?".ALERT."=".ALERT_INVALID_LOGIN);
-        die();
     }
 } else {
     header("Location: login_page.php?".ALERT."=".ALERT_INVALID_LOGIN);
-    die();
 }
 
 $stmt->close();
