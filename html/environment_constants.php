@@ -9,6 +9,8 @@ const  AUTHORITY_ADMIN = "Administrator";
 const  AUTHORITY_POLICE_OFFICER = "PoliceOfficer";
 const USERID = "ID";
 const IMAGE_DIR = 'images/';
-const LOGIN_PAGE_PATH = 'coursework2/login_page.php';
-const NAVI_PAGE_PATH= 'coursework2/navi_page.php';
+const LOGIN_PATH = 'login.php';
+const LOGOUT_PATH = 'logout.php';
+const LOGIN_PAGE_PATH = 'cw2/login_page.php';
+const NAVI_PAGE_PATH= 'cw2/navi_page.php';
 ?>

@@ -1,3 +1,7 @@
+<?php
+include_once $_SERVER['DOCUMENT_ROOT'] . '/environment_constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/php_utils.php';
+?>
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
@@ -16,13 +20,11 @@
         <div class="login-container">
             <div class="login-form">
                 <div class="login-logo">
-                    <img class="img-fluid" src="../images/tvis.png" alt="Logo Image">
+                    <img class="img-fluid" src="<?php echo get_relative_path_to_root().IMAGE_DIR.'tvis.png' ?>" alt="Logo Image">
                 </div>
-                <form action="../login.php" class="login-form" method="post">
+                <form action="<?php echo get_relative_path_to_root().LOGIN_PATH?>" class="login-form" method="post">
 
 <?php
-include_once $_SERVER['DOCUMENT_ROOT'] . '/environment_constants.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/php_utils.php';
 $invalid_login_alert_message = <<<EOT
                     <div class="alert alert-danger">
                         Wrong username or password, please try again

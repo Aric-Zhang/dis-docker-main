@@ -4,6 +4,7 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/php_utils.php';
 
 function render_navi_bar($username, $authority){
     $logo_image_path = get_relative_path_to_root().IMAGE_DIR."tvis_navi.png";
+    $logout_path = get_relative_path_to_root().LOGOUT_PATH;
     $user_capital = '';
     if($username != "")
         $user_capital = strtoupper($username[0]);
@@ -38,7 +39,7 @@ function render_navi_bar($username, $authority){
                                         <a class="dropdown-item $manage_dropmenu_item_inactive_class">Manage System</a>
                                     </div>
                                     <div class="carousel_item active">
-                                        <a href="../logout.php" class="dropdown-item">Log out</a>
+                                        <a href="$logout_path" class="dropdown-item">Log out</a>
                                     </div>
                                 </div>
                             </div>
