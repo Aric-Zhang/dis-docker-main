@@ -20,9 +20,9 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/php_utils.php';
         <div class="login-container">
             <div class="login-form">
                 <div class="login-logo">
-                    <img class="img-fluid" src="<?php echo get_relative_path_to_root().IMAGE_DIR.'tvis.png' ?>" alt="Logo Image">
+                    <img class="img-fluid" src="<?php echo get_relative_path_to_root(__FILE__).IMAGE_DIR.'tvis.png' ?>" alt="Logo Image">
                 </div>
-                <form action="<?php echo get_relative_path_to_root().LOGIN_PATH?>" class="login-form" method="post">
+                <form action="<?php echo get_relative_path_to_root(__FILE__).LOGIN_PATH?>" class="login-form" method="post">
 
 <?php
 $invalid_login_alert_message = <<<EOT

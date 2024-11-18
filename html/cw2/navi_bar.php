@@ -3,14 +3,14 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/environment_constants.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/php_utils.php';
 
 function render_navi_bar($username, $authority){
-    $logo_image_path = get_relative_path_to_root().IMAGE_DIR."tvis_navi.png";
-    $logout_path = get_relative_path_to_root().LOGOUT_PATH;
+    $logo_image_path = get_relative_path_to_root(__FILE__).IMAGE_DIR."tvis_navi.png";
+    $logout_path = get_relative_path_to_root(__FILE__).LOGOUT_PATH;
     $user_capital = '';
     if($username != "")
         $user_capital = strtoupper($username[0]);
     else{
         echo __FUNCTION__;
-        echo "User name can't be empty";
+        echo "Username can't be empty";
         die();
     }
     $manage_dropmenu_item_inactive_class='inactive';
