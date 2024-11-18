@@ -2,9 +2,11 @@
 include_once $_SERVER['DOCUMENT_ROOT'].'/environment_constants.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/php_utils.php';
 
-function render_navi_bar($username, $authority){
-    $logo_image_path = get_relative_path_to_root(__FILE__).IMAGE_DIR."tvis_navi.png";
-    $logout_path = get_relative_path_to_root(__FILE__).LOGOUT_PATH;
+function render_navi_bar($file_path){
+    $username = $_SESSION[USERNAME];
+    $authority = $_SESSION[AUTHORITY];
+    $logo_image_path = get_relative_path_to_root($file_path).IMAGE_DIR."tvis_navi.png";
+    $logout_path = get_relative_path_to_root($file_path).LOGOUT_PATH;
     $user_capital = '';
     if($username != "")
         $user_capital = strtoupper($username[0]);
