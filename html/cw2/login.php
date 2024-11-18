@@ -6,7 +6,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/php_utils.php';
 $servername = "mariadb";
 $username = "root";
 $password = "rootpwd";
-$dbname = "coursework2";
+$dbname = "cw2-database";
 
 $conn = mysqli_connect($servername, $username, $password, $dbname);
 // other code here!

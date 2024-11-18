@@ -24,12 +24,13 @@ function render_navi_bar($username, $authority){
             <a class="align-items-center display-flex">
                 <img src=$logo_image_path class="logo" alt="Traffic Violation Inquiry System Icon">
             </a>
+            <div style="background-color: #FDFBF9; width: 100%"></div>
             <div class="navbar-nav ml-auto">
                 <div class="display-flex align-items-stretch" style="height: 100%">
                     <div class="usermenu">
                         <div class="dropdown">
                             <a id="dropdown-button" role="button" class="btn dropdown-toggle">
-                                <button class="userbutton">$user_capital</button>
+                                <span class="userbutton">$user_capital</span>
                                 <span class="arrow-down"></span>
                             </a>
                             <div id="dropdown-menu" class="dropdown-menu dropdown-menu-right">
