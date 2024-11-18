@@ -4,9 +4,8 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/php_utils.php';
 
 function render_grid_item($file_path, $icon_file_name, $text, $href){
     $person_icon_path = get_relative_path_to_root($file_path).IMAGE_DIR.$icon_file_name;
-    $logout_path = get_relative_path_to_root($file_path).LOGOUT_PATH;
     $grid_item_doc = <<<EOT
-    <a href= $logout_path class="grid-item btn">
+    <a href= $href class="grid-item btn">
         <img src= $person_icon_path class="grid-item-icon" alt="icon">
     $text</a>
 EOT;
