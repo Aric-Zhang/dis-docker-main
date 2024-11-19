@@ -182,6 +182,31 @@ input, button, select, optgroup, textarea {
 .navbar-expand.navbar-nav {
     flex-direction: row;
 }
+.nav-item{
+    height: 60px;
+    color: #405162;
+    border-top: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    border-right: none;
+    border-bottom: solid 3px transparent;
+    border-left: none;
+    padding: .5rem 1rem;
+    text-decoration: none !important;
+    font-size: calc(1rem + 0.05vw);
+}
+.nav-item-link:hover{
+    background-color: #CFD4D8;
+}
+.nav-item-link{
+    height: 100%;
+    padding: 5px 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+}
 .usermenu {
     display: flex;
     align-items: center;
@@ -304,7 +329,6 @@ input, button, select, optgroup, textarea {
     right: -0.3em;
     transform: rotate(45deg);
     position: absolute;
-    /* border-color: white; */
     border-width: 0 2px 2px 0;
 }
 .arrow-up {

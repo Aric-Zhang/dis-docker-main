@@ -11,4 +11,22 @@ if (!isset($_SESSION[USERNAME])) {
     die();
 }
 ?>
-
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIS Entrance Page</title>
+    <style>
+        @import "../css/dis_cw2_common.css";
+    </style>
+</head>
+<body>
+<?php
+render_navi_bar(__FILE__);
+?>
+<?php
+?>
+<div class="main_page_wrapper">
+</div>
+</body>
+</html>

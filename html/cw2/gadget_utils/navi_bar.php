@@ -7,6 +7,8 @@ function render_navi_bar($file_path){
     $authority = $_SESSION[AUTHORITY];
     $logo_image_path = get_relative_path_to_root($file_path).IMAGE_DIR."tvis_navi.png";
     $logout_path = get_relative_path_to_root($file_path).LOGOUT_PATH;
+    $navi_page_path = get_relative_path_to_root($file_path).NAVI_PAGE_PATH;
+    $profile_path = get_relative_path_to_root($file_path).PROFILE_PAGE_PATH;
     $user_capital = '';
     if($username != "")
         $user_capital = strtoupper($username[0]);
@@ -26,7 +28,16 @@ function render_navi_bar($file_path){
             <a class="align-items-center display-flex">
                 <img src=$logo_image_path class="logo" alt="Traffic Violation Inquiry System Icon">
             </a>
-            <div style="background-color: #FDFBF9; width: 100%"></div>
+            <div style="background-color: #FDFBF9; width: 100%">
+                <ul class="navbar-nav" style="margin-top: 0; margin-left: 10px; flex-direction: row;"> 
+                    <li class="nav-item">
+                        <a href="$navi_page_path" class="nav-item-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-item-link">More</a>
+                    </li>
+                </ul>
+            </div>
             <div class="navbar-nav ml-auto">
                 <div class="display-flex align-items-stretch" style="height: 100%">
                     <div class="usermenu">
@@ -38,7 +49,7 @@ function render_navi_bar($file_path){
                             <div id="dropdown-menu" class="dropdown-menu dropdown-menu-right">
                                 <div style="position: relative;width: 100%;overflow: hidden;">
                                     <div class="carousel_item active">
-                                        <a class="dropdown-item">Profile</a>
+                                        <a href="$profile_path" class="dropdown-item">Profile</a>
                                         <a class="dropdown-item $manage_dropmenu_item_inactive_class">Manage System</a>
                                     </div>
                                     <div class="carousel_item active">
