@@ -121,6 +121,10 @@ input, button, select, optgroup, textarea {
     background-color: #16417C;
     border: 2px solid #16417C;
 }
+.btn-primary:disabled{
+    background-color: #707D89;
+    border: 2px solid #707D89;
+}
 .btn-lg, .btn-group-lg>.btn {
     padding: .5rem 1rem;
     font-size: 1.171875rem;
