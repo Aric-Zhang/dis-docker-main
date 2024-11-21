@@ -27,9 +27,8 @@ if (!isset($_SESSION[USERNAME])) {
         .form_control_search{
             height: calc(1.5em + 1rem + 2px);
             padding: .5rem 1rem;
-            font-size: 1.171875rem;
-            line-height: 1.5;
-            border: 1px solid #707D89;
+            font-size: 1rem;
+            border: 1px solid #CFD4D8;
         }
 
         .search_input_wrapper{
@@ -44,7 +43,7 @@ if (!isset($_SESSION[USERNAME])) {
         }
 
         .search_input_wrapper .search_input:focus{
-            border: 1px solid #707D89;
+            border: 1px solid #CFD4D8;
             outline: none;
             box-shadow: none;
             border-right: 0;
@@ -57,13 +56,13 @@ if (!isset($_SESSION[USERNAME])) {
 
         .search_input_wrapper .dropdown_button{
             border-radius:  50px 0 0 50px ;
-            border: 1px solid #707D89;
+            border: 1px solid #CFD4D8;
             border-right: 0;
-            background-color: white;
             padding-right: 1.5rem;
-            color: #707D89;
-            min-width: 15rem;
+            color: #516170;
+            min-width: 13rem;
             position: relative;
+            background-color: #FDFBF9;
         }
 
         .search_page_wrapper{
@@ -106,16 +105,17 @@ render_navi_bar(__FILE__);
 ?>
 <div class="main_page_wrapper">
     <div>
-        <form action="" class="general_form" method="post">
+        <form action="" class="general_form" method="get">
             <div class="form-group search_input_wrapper">
+                <input id="search_people_type_input" type="text" name="search_people_type" style="display: none" value="General Search">
                 <button id="dropdown-button-search-type-people" class="btn btn-primary form_control_search dropdown_button" type="button">
-                    General Search
+                    <span id="dropdown-button-search-type-people-text">General Search</span>
                     <?php
 
                     $dropdown_menu_item_array=array(
-                            array("text"=>"General Search", "href"=>"#", "id"=>""),
-                        array("text"=>"Search Name", "href"=>"#", "id"=>""),
-                        array("text"=>"Search Driving Licence","href"=>"#", "id"=>""),
+                            array("text"=>"General Search", "href"=>"#", "id"=>"search_type_general"),
+                        array("text"=>"Search Name", "href"=>"#", "id"=>"search_type_name"),
+                        array("text"=>"Search Driving Licence","href"=>"#", "id"=>"search_type_driving_license"),
                     );
 
                     $dropdown_menu_id = "dropdown-menu-search-type-people";
@@ -125,10 +125,34 @@ render_navi_bar(__FILE__);
                     bind_dropdown_menu_to_button($dropdown_menu_id, $dropdown_button_id);
 
                     ?>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const links = [
+                                [document.getElementById('search_type_general'),'General','Type in people\'s name or driving licence number'],
+                                [document.getElementById('search_type_name'),'Name','Type in people\'s name'],
+                                [document.getElementById('search_type_driving_license'),'Driving_License','Type in people\'s driving license number']
+                            ];
 
+                            var span = document.getElementById('dropdown-button-search-type-people-text');
+                            var input = document.getElementById('search_people_type_input');
+                            var search_input = document.getElementById('search_people_input');
+
+
+                            links.forEach((item)=>{
+                                var link = item[0];
+                                var type = item[1];
+                                var placeholder = item[2];
+                                link.addEventListener('click', function(event) {
+                                    event.preventDefault();
+                                    span.innerHTML = link.textContent;
+                                    input.value = type;
+                                    search_input.placeholder = placeholder;
+                                });
+                            });
+                        });
+                    </script>
                 </button>
-
-                <input type="text" name=<?php echo USERNAME; ?> class="form-control form_control_search search_input" placeholder="Type in people's name or driving licence number">
+                <input id="search_people_input" type="text" name="search_people_text" class="form-control form_control_search search_input" placeholder="Type in people's name or driving licence number">
                 <button class="btn btn-primary form_control_search search_button" type="submit">Search</button>
             </div>
         </form>
@@ -181,13 +205,67 @@ render_navi_bar(__FILE__);
     </div>
 
     <?php
-    $grid_item_info_array = array(
-        array("icon_file_name"=>'person_icon.png',"text"=>'Search Person',"href"=>"search_people_page.php"),
-        array("icon_file_name"=>'person_icon.png',"text"=>'Search Vehicle',"href"=>"#"),
-        array("icon_file_name"=>'person_icon.png',"text"=>'Add Person',"href"=>"#"),
-        array("icon_file_name"=>'person_icon.png',"text"=>'Add Vehicle',"href"=>"#"),
-    ) ;
-    render_grid(__FILE__, $grid_item_info_array);
+
+    if(isset($_GET["search_people_text"]) && isset($_GET["search_people_type"]) && $_GET["search_people_text"]!=""){
+        $servername = "mariadb";
+        $username = "root";
+        $password = "rootpwd";
+        $dbname = "cw2-database";
+
+        $conn = mysqli_connect($servername, $username, $password, $dbname);
+        // other code here!
+        if(mysqli_connect_errno())
+        {
+            echo "Failed to connect to  
+          MySQL:".mysqli_connect_error();
+            die();
+        }
+
+        $name_input = $_GET["search_people_text"];
+        $name_cond = "%".$name_input."%";
+
+        $stmt = $conn->prepare("SELECT * FROM People WHERE People_name LIKE ?");
+        $stmt->bind_param("s", $name_cond);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if($result->num_rows < 1){
+            echo "No results found";
+        }
+        else{
+            $table_start = <<<EOT
+            <table>
+                <caption>Result</caption>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Driving Licence</th>
+                </tr>
+                </thead>
+                <tbody>
+EOT;
+            $table_end = <<<EOT
+                </tbody>
+            </table>
+EOT;
+            echo $table_start;
+
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>".$row["People_ID"]."</td>";
+                echo "<td>".$row["People_name"]."</td>";
+                echo "<td>".$row["People_address"]."</td>";
+                echo "<td>".$row["People_licence"]."</td>";
+                echo "</tr>";
+            }
+            echo $table_end;
+        }
+        $stmt->close();
+        $conn->close();
+    }
+
     ?>
 </div>
 </body>
