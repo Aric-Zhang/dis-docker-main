@@ -405,3 +405,138 @@ input, button, select, optgroup, textarea {
     margin-top: 60px;
     padding-left: 1rem;
 }
+.profile-container{
+    display: flex;
+    width: 100%;
+    max-width: 60em;
+    padding: 10px; /* 内边距 */
+
+}
+.profile-wrapper{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+}
+.left-column {
+    flex: 2; /* 左侧列的宽度为总宽度的三分之二 */
+    padding: 0;
+    box-sizing: border-box; /* 包括内边距和边框在内的宽度计算 */
+}
+
+.right-column {
+    flex: 3; /* 右侧列的宽度为总宽度的三分之一 */
+    padding: 0;
+    box-sizing: border-box; /* 包括内边距和边框在内的宽度计算 */
+}
+.profile_in_column_block{
+    margin: 1rem 0.5rem;
+    border: 1px solid #ccc;
+}
+.profile_in_block_column_wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center
+}
+.profile_in_block_row_wrapper{
+    flex-direction: row;
+    width: 100%
+}
+.profile_user_icon{
+    width: 7rem;
+    height: 7rem;
+    font-size: 2rem;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0;
+}
+.profile_in_block_spacing{
+    margin: 1.5rem;
+}
+.profile_block_title{
+    width:100%;
+    text-align: center;
+    margin-bottom: 0;
+    background-color: #118bee;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.modal-background {
+    display: none; /* 默认隐藏 */
+    position: fixed; /* 固定位置 */
+    z-index: 1; /* 确保在最上层 */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 1rem;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+/* Modal */
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+.text-center-label{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.password-change-input-label{
+    display: flex;
+    width: 12rem;
+    align-items: center;
+}
+.password-change-star-label{
+    display: flex;
+    width: 1rem;
+    align-items: center;
+    color: red;
+}
+.password-change-row-wrapper{
+    display: flex;
+    flex-direction: row;
+}
+.password-change-mark-label{
+    display: flex;
+    width: 3rem;
+    align-items: center;
+    justify-content: end;
+    font-size: 1.5rem;
+    color: green;
+}
+.form-control-normal{
+    height: 2.5rem;
+    border-color: #999999;
+    padding: .5rem 1rem;
+}

@@ -15,7 +15,7 @@ if (!isset($_SESSION[USERNAME])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DIS Entrance Page</title>
+    <title>DIS Home Page</title>
     <style>
         @import "../css/dis_cw2_common.css";
     </style>
@@ -24,12 +24,14 @@ if (!isset($_SESSION[USERNAME])) {
 <?php
 render_navi_bar(__FILE__);
 ?>
+
 <?php
+
 ?>
 <div class="main_page_wrapper">
 <?php
     $grid_item_info_array = array(
-        array("icon_file_name"=>'person_icon.png',"text"=>'Search Person',"href"=>"#"),
+        array("icon_file_name"=>'person_icon.png',"text"=>'Search Person',"href"=>"search_people_page.php"),
         array("icon_file_name"=>'person_icon.png',"text"=>'Search Vehicle',"href"=>"#"),
         array("icon_file_name"=>'person_icon.png',"text"=>'Add Person',"href"=>"#"),
         array("icon_file_name"=>'person_icon.png',"text"=>'Add Vehicle',"href"=>"#"),
