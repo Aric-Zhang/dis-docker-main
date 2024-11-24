@@ -15,7 +15,6 @@ function get_relative_path_to_root($file_path)
     }
     return $relative_path_to_root;
 }
-
 function get_relative_path($from_file_path, $to_file_path){
     $from_path_folders = explode('/', $from_file_path);
     $to_path_folders = explode('/', $to_file_path);
@@ -41,5 +40,51 @@ function get_relative_path($from_file_path, $to_file_path){
         }
     }
     return $relative_path;
+}
+function getBaseUrl() {
+    // 获取协议（http 或 https）
+    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+        $protocol = $_SERVER['HTTP_X_FORWARDED_PROTO'];
+    } elseif (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+        $protocol = "https";
+    } else {
+        $protocol = "http";
+    }
+
+    // 获取主机名
+    if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+        $host = $_SERVER['HTTP_X_FORWARDED_HOST'];
+    } elseif (isset($_SERVER['HTTP_HOST'])) {
+        $host = $_SERVER['HTTP_HOST'];
+    } else {
+        $host = $_SERVER['SERVER_NAME'];
+    }
+
+    // 获取请求 URI 的路径部分（去掉查询字符串）
+    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+    // 构建基础 URL
+    $baseUrl = "$protocol://$host$uri";
+
+    return $baseUrl;
+}
+function start_mysql_connection(){
+    $servername = "mariadb";
+    $username = "root";
+    $password = "rootpwd";
+    $dbname = "cw2-database";
+
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+    // other code here!
+    if(mysqli_connect_errno())
+    {
+        echo "Failed to connect to  
+          MySQL:".mysqli_connect_error();
+        die();
+    }
+    return $conn;
+}
+function end_mysql_connection($conn){
+    mysqli_close($conn);
 }
 ?>

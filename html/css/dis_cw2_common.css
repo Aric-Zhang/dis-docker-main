@@ -540,3 +540,68 @@ input, button, select, optgroup, textarea {
     border-color: #999999;
     padding: .5rem 1rem;
 }
+.general_form{
+    margin: 1rem;
+}
+
+.form_control_search{
+    height: calc(1.5em + 1rem + 2px);
+    padding: .5rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #CFD4D8;
+}
+
+.search_input_wrapper{
+    display: flex;
+    flex-direction: row;
+}
+
+.search_input_wrapper .search_input{
+    border-radius: 0;
+    border-right: 0;
+    transition: none;
+}
+
+.search_input_wrapper .search_input:focus{
+    border: 1px solid #CFD4D8;
+    outline: none;
+    box-shadow: none;
+    border-right: 0;
+}
+
+.search_input_wrapper .search_button{
+    border-radius: 0 50px 50px 0;
+    border: 1px solid #16417C;
+}
+
+.search_input_wrapper .dropdown_button{
+    border-radius:  50px 0 0 50px ;
+    border: 1px solid #CFD4D8;
+    border-right: 0;
+    padding-right: 1.5rem;
+    color: #516170;
+    min-width: 13rem;
+    position: relative;
+    background-color: #FDFBF9;
+}
+
+.search_page_wrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    color: #333333;
+}
+
+.search_input_wrapper .dropdown_button:after {
+    content: '';
+    position: absolute;
+    border: solid black;
+    display: inline-block;
+    padding: 3px;
+    right: 0.5rem;
+    top: calc(50% - 0.3rem);
+    transform: rotate(45deg);
+    border-width: 0 2px 2px 0;
+}
