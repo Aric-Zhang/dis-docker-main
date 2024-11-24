@@ -9,7 +9,7 @@ class SearchOptionRenderer{
     var $invisible_input_name;
     var $search_opt_button_id;
     var $search_opt_button_text_id;
-
+    var $dropdown_menu_item_type_placeholder_array;
     var $dropdown_menu_item_array;
 
     var $search_type_array;
@@ -39,7 +39,7 @@ class SearchOptionRenderer{
             array_push($dropdown_menu_item_array, array('text'=> $dmitp['text'], 'href'=>'#','id'=>$dmitp['id']));
             array_push($search_type_array, array('id'=>$dmitp['id'],'type'=>$dmitp['type'],'func'=>$dmitp['func']));
         }
-
+        $this->dropdown_menu_item_type_placeholder_array = $dropdown_menu_item_type_placeholder_array;
         $this->dropdown_menu_item_array = $dropdown_menu_item_array;
 
         $this->search_type_array = $search_type_array;
@@ -53,7 +53,7 @@ class SearchOptionRenderer{
         $invisible_input_name = $this->invisible_input_name;
         $search_opt_button_id = $this->search_opt_button_id;
         $search_opt_button_text_id = $this->search_opt_button_text_id;
-
+        $dropdown_menu_item_type_placeholder_array = $this->dropdown_menu_item_type_placeholder_array;
         $dropdown_menu_item_array=$this->dropdown_menu_item_array;
 
         $search_type_array=$this->search_type_array;
@@ -69,13 +69,26 @@ class SearchOptionRenderer{
         }
 
         $search_default_type = "";
-        if(count($search_type_array)>0){
-            $search_default_type = $search_type_array[0]['type'];
-        }
         $button_default_text = "";
-        if(count($dropdown_menu_item_array)>0){
-            $button_default_text = $dropdown_menu_item_array[0]['text'];
+        if(count($dropdown_menu_item_type_placeholder_array) > 0){
+            $found_match = false;
+            if(isset($_GET[$invisible_input_name])){
+                $got_type = $_GET[$invisible_input_name];
+                foreach ($dropdown_menu_item_type_placeholder_array as $dmitp){
+                    if($dmitp['type'] == $got_type){
+                        $search_default_type = $dmitp['type'];
+                        $button_default_text = $dmitp['text'];
+                        $found_match = true;
+                        break;
+                    }
+                }
+            }
+            if(! $found_match) {
+                $search_default_type = $dropdown_menu_item_type_placeholder_array[0]['type'];
+                $button_default_text = $dropdown_menu_item_type_placeholder_array[0]['text'];
+            }
         }
+
         $start_search_opt_button_doc = <<<EOT
                 <input id="$invisible_input_id" type="text" name="$invisible_input_name" style="display: none" value="$search_default_type">
                 <button id="$search_opt_button_id" class="btn btn-primary form_control_search dropdown_button" type="button">
@@ -139,8 +152,12 @@ EOT;
 }
 function render_search_input_and_button($input_id,$input_name,$placeholder)
 {
+    $input_init_value = "";
+    if(isset($_GET[$input_name])){
+        $input_init_value = $_GET[$input_name];
+    }
     $search_input_doc = <<<EOT
-                    <input id='$input_id' type="text" name="$input_name" class="form-control form_control_search search_input" placeholder="$placeholder">
+                    <input id='$input_id' type="text" name="$input_name" class="form-control form_control_search search_input" placeholder="$placeholder" value="$input_init_value">
 EOT;
     $search_button_doc = <<<EOT
                     <button class="btn btn-primary form_control_search search_button" type="submit">Search</button>
