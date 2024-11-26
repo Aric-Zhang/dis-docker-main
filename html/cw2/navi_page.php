@@ -33,7 +33,7 @@ render_navi_bar(__FILE__);
     $grid_item_info_array = array(
         array("icon_file_name"=>'person_icon.png',"text"=>'Search Person',"href"=>"search_people_page.php"),
         array("icon_file_name"=>'person_icon.png',"text"=>'Search Vehicle',"href"=>"search_vehicle_page.php"),
-        array("icon_file_name"=>'person_icon.png',"text"=>'Add Person',"href"=>"#"),
+        array("icon_file_name"=>'person_icon.png',"text"=>'Search Incident',"href"=>"search_incident_page.php"),
         array("icon_file_name"=>'person_icon.png',"text"=>'Add Vehicle',"href"=>"#"),
     ) ;
     render_grid(__FILE__, $grid_item_info_array);

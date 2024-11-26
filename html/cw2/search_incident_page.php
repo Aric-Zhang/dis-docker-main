@@ -82,26 +82,26 @@ render_navi_bar(__FILE__);
 
             if(isset($_GET[$search_input_name]) && isset($_GET[$search_type_name]) && $_GET[$search_input_name]!=""){
                 //Column name to shown name
-                $table_headings_array = array("Incident_ID"=>"ID","Incident_Date"=>"Date", "Incident_Report"=>"Report","People_name"=>"Driver", "Vehicle_plate"=>"Vehicle Plate");
+                $table_headings_array = array("Incident_ID"=>"ID","Incident_Date"=>"Date", "Offence_description"=>"Offence","People_name"=>"Driver", "Vehicle_plate"=>"Vehicle Plate");
                 $id_column_name = 'Incident_ID';
                 $conn = start_mysql_connection();
                 $name_input = $_GET[$search_input_name];
                 $name_cond = "%".$name_input."%";
                 $search_type = $_GET[$search_type_name];
                 if($search_type==$type_2) {  // people name
-                    $stmt = $conn->prepare("SELECT Incident_ID, Incident_Date, Incident_Report, People_name, Vehicle_plate FROM `Incident` NATURAL JOIN People NATURAL JOIN Vehicle WHERE People_name LIKE ?");
+                    $stmt = $conn->prepare("SELECT Incident_ID, Incident_Date, Offence_description, People_name, Vehicle_plate FROM `Incident` NATURAL JOIN People NATURAL JOIN Vehicle NATURAL JOIN Offence WHERE People_name LIKE ?");
                     $stmt->bind_param("s", $name_cond);
                 }
                 else if($search_type==$type_3) { // plate
-                    $stmt = $conn->prepare("SELECT Incident_ID, Incident_Date, Incident_Report, People_name, Vehicle_plate FROM `Incident` NATURAL JOIN People NATURAL JOIN Vehicle WHERE Vehicle_plate LIKE ?");
+                    $stmt = $conn->prepare("SELECT Incident_ID, Incident_Date, Offence_description, People_name, Vehicle_plate FROM `Incident` NATURAL JOIN People NATURAL JOIN Vehicle NATURAL JOIN Offence WHERE Vehicle_plate LIKE ?");
                     $stmt->bind_param("s", $name_cond);
                 }
                 else if($search_type==$type_4) { //id
-                    $stmt = $conn->prepare("SELECT Incident_ID, Incident_Date, Incident_Report, People_name, Vehicle_plate FROM `Incident` NATURAL JOIN People NATURAL JOIN Vehicle WHERE Incident_ID = ?");
+                    $stmt = $conn->prepare("SELECT Incident_ID, Incident_Date, Offence_description, People_name, Vehicle_plate FROM `Incident` NATURAL JOIN People NATURAL JOIN Vehicle NATURAL JOIN Offence WHERE Incident_ID = ?");
                     $stmt->bind_param("i", $name_input);
                 }
                 else{
-                    $stmt = $conn->prepare("SELECT Incident_ID, Incident_Date, Incident_Report, People_name, Vehicle_plate FROM `Incident` NATURAL JOIN People NATURAL JOIN Vehicle WHERE People_name LIKE ? OR Vehicle_plate LIKE ?");
+                    $stmt = $conn->prepare("SELECT Incident_ID, Incident_Date, Offence_description, People_name, Vehicle_plate FROM `Incident` NATURAL JOIN People NATURAL JOIN Vehicle NATURAL JOIN Offence WHERE People_name LIKE ? OR Vehicle_plate LIKE ?");
                     $stmt->bind_param("ss", $name_cond, $name_cond);
                 }
                 $stmt->execute();
@@ -123,6 +123,19 @@ render_navi_bar(__FILE__);
                     $row_id = $row[$id_column_name];
                     if(isset($_GET['expand_id']) && $_GET['expand_id']==$row_id){
                         $colspan = count($row) + 1;
+
+                        $stmt = $conn->prepare("SELECT Fine_Amount, Fine_Points, Incident_Report FROM Incident i LEFT JOIN Fines f ON i.Incident_ID = f.Incident_ID WHERE i.Incident_ID = ?");
+                        $stmt->bind_param("i", $row_id);
+                        $stmt->execute();
+                        $nested_result = $stmt->get_result();
+
+                        $nested_header_array = array("Incident_Report"=>"Report", "Fine_Amount"=>"Fine Amount", "Fine_Points"=>"Fine Points");
+                        $nested_table_caption = "Incident Details and Fines";
+                        if ($nested_result->num_rows > 0){
+                            while ($nested_row = $nested_result->fetch_assoc()){
+                                render_vertical_expand_row_nested_table($nested_row, $nested_table_caption, $nested_header_array, $colspan);
+                            }
+                        }
 
                         $nested_table_make_url_data = array(
                             "base_url"=>"search_people_page.php",
