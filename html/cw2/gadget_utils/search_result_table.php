@@ -2,10 +2,10 @@
 include_once $_SERVER['DOCUMENT_ROOT'].'/environment_constants.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/php_utils.php';
 
-function start_nested_table($nested_table_caption){
+function start_nested_table($nested_table_caption, $colspan){
     $start_nested_table_doc = <<<EOT
                                 <tr class='selected_row'>
-                                    <td colspan='5' style='user-select: text'  class='zero-padding'> 
+                                    <td colspan='$colspan' style='user-select: text'  class='zero-padding'> 
                                     <table class='search_res_table_nested' style='user-select: text'>                
                                         <caption>$nested_table_caption</caption>
                                             <tbody>
@@ -21,31 +21,42 @@ function end_nested_table(){
 EOT;
     echo $end_nested_table_doc;
 }
-function render_nested_table($nested_table_caption, $nested_result, $nested_header_array, $no_result_placeholder) {
-    start_nested_table( $nested_table_caption);
-    $nested_table_content_array = array();
-    while ($nested_row = $nested_result->fetch_assoc()){
-        $nested_row_array = array();
-        foreach ($nested_header_array as $nested_header_name=>$nested_header_alias) {
-            array_push($nested_row_array, $nested_row[$nested_header_name]);
+function render_nested_table($nested_table_caption, $nested_result, $nested_header_array, $no_result_placeholder, $make_url_data = null, $colspan = 5) {
+    start_nested_table( $nested_table_caption, $colspan);
+    if($nested_result->num_rows > 0) {
+        echo "<thead>";
+        foreach ($nested_header_array as $nested_header_name => $nested_header_alias) {
+            echo "<td>";
+            echo $nested_header_alias;
+            echo "</td>";
         }
-        array_push($nested_table_content_array, $nested_row_array);
+        if ($make_url_data != null) {
+            echo "<td></td>";
+        }
+        echo "</thead>";
     }
-    foreach ($nested_table_content_array as $nested_row_array) {
+
+    while ($nested_row = $nested_result->fetch_assoc()){
         echo "<tr>";
-        foreach ($nested_row_array as $nested_td) {
-            echo "<td>$nested_td</td>";
+        foreach ($nested_header_array as $nested_header_name=>$nested_header_alias) {
+            echo "<td>";
+            echo $nested_row[$nested_header_name];
+            echo "</td>";
         }
-        echo "<td style='width: 5rem'><a href='"."#"."'>Details</a></td>";
+        if($make_url_data != null){
+            $href = make_nested_table_detail_url($nested_row, $make_url_data);
+            echo "<td style='width: 5rem'><a href='".$href."'>Details</a></td>";
+        }
         echo "</tr>";
     }
+
     if($nested_result->num_rows < 1){
-        echo "<tr><td>$no_result_placeholder<td></tr>";
+        echo "<tr><td>$no_result_placeholder</td></tr>";
     }
     end_nested_table();
 }
-function render_vertical_expand_row_nested_table($row, $nested_table_caption, $nested_header_array){
-    start_nested_table($nested_table_caption);
+function render_vertical_expand_row_nested_table($row, $nested_table_caption, $nested_header_array, $colspan = 5) {
+    start_nested_table($nested_table_caption, $colspan);
     foreach ($nested_header_array as $nested_header_name=>$nested_header_alias) {
         echo "<tr>";
         echo "<td>$nested_header_alias</td>";

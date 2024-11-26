@@ -661,6 +661,14 @@ input, button, select, optgroup, textarea {
     text-align: center;
 }
 
+.search_res_table_nested thead{
+    padding: 0.5rem;
+    font-weight: bold;
+    background-color: #ffffff;
+    text-align: center;
+    border-bottom: 1px solid #eaeaea;
+}
+
 .search_res_table_nested tr:nth-child(odd), .search_res_table_nested tr:nth-child(even){
     background-color: #ffffff;
     user-select: text;
@@ -669,6 +677,16 @@ input, button, select, optgroup, textarea {
 .search_res_table_nested td{
     background-color: #ffffff;
     user-select: text;
+    border-left: 1px solid #eaeaea;
+    border-right: 1px solid #eaeaea;;
+}
+
+.search_res_table_nested tr>td:last-child{
+    border-right: none;
+}
+
+.search_res_table_nested tr>td:first-child{
+    border-left: none;
 }
 
 .search_res_table_nested tr:last-child td{
