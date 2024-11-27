@@ -157,6 +157,7 @@ function render_search_input_and_button($input_id,$input_name,$placeholder)
         $input_init_value = $_GET[$input_name];
     }
     $search_input_doc = <<<EOT
+                    
                     <input id='$input_id' type="text" name="$input_name" class="form-control form_control_search search_input" placeholder="$placeholder" value="$input_init_value">
 EOT;
     $search_button_doc = <<<EOT

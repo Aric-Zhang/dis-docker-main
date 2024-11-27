@@ -82,15 +82,15 @@ render_navi_bar(__FILE__);
 
             if(isset($_GET[$search_input_name]) && isset($_GET[$search_type_name]) && $_GET[$search_input_name]!=""){
                 //Column name to shown name
-                $table_headings_array = array("Vehicle_ID"=>"ID","Vehicle_type"=>"Brand","Vehicle_colour"=>"Color","Vehicle_plate"=>"Plate",);
+                $table_headings_array = array("Vehicle_ID"=>"ID","Vehicle_make"=>"Make","Vehicle_model"=>"Model","Vehicle_colour"=>"Color","Vehicle_plate"=>"Plate",);
                 $id_column_name = 'Vehicle_ID';
                 $conn = start_mysql_connection();
                 $name_input = $_GET[$search_input_name];
                 $name_cond = "%".$name_input."%";
                 $search_type = $_GET[$search_type_name];
                 if($search_type==$type_2) {  // brand
-                    $stmt = $conn->prepare("SELECT * FROM Vehicle WHERE Vehicle_type LIKE ?");
-                    $stmt->bind_param("s", $name_cond);
+                    $stmt = $conn->prepare("SELECT * FROM Vehicle WHERE Vehicle_make LIKE ? OR Vehicle_model LIKE ?");
+                    $stmt->bind_param("ss", $name_cond, $name_cond);
                 }
                 else if($search_type==$type_3) { // plate
                     $stmt = $conn->prepare("SELECT * FROM Vehicle WHERE Vehicle_plate LIKE ?");
@@ -101,8 +101,8 @@ render_navi_bar(__FILE__);
                     $stmt->bind_param("i", $name_input);
                 }
                 else{
-                    $stmt = $conn->prepare("SELECT * FROM Vehicle WHERE Vehicle_type LIKE ? OR Vehicle_plate LIKE ? OR Vehicle_colour LIKE ?");
-                    $stmt->bind_param("sss", $name_cond, $name_cond, $name_cond);
+                    $stmt = $conn->prepare("SELECT * FROM Vehicle WHERE Vehicle_make LIKE ? OR Vehicle_model LIKE ? OR Vehicle_plate LIKE ? OR Vehicle_colour LIKE ?");
+                    $stmt->bind_param("ssss", $name_cond, $name_cond, $name_cond, $name_cond);
                 }
                 $stmt->execute();
                 $result = $stmt->get_result();
@@ -122,7 +122,7 @@ render_navi_bar(__FILE__);
                     render_search_table_row($row, $id_column_name, $table_headings_array);
                     $row_id = $row[$id_column_name];
                     if(isset($_GET['expand_id']) && $_GET['expand_id']==$row_id){
-
+                        $colspan = count($row) + 1;
                         $nested_table_make_url_data = array(
                             "base_url"=>"search_people_page.php",
                             "search_type_name"=>"search_people_type",
@@ -143,7 +143,7 @@ render_navi_bar(__FILE__);
                         $nested_header_array = array("People_ID"=>"ID", "People_name"=>"Name", "People_address"=>"Address", "People_licence"=>"Driving Licence");
                         $no_result_placeholder = "No owner information found";
 
-                        render_nested_table($nested_table_caption, $nested_result, $nested_header_array, $no_result_placeholder, $nested_table_make_url_data);
+                        render_nested_table($nested_table_caption, $nested_result, $nested_header_array, $no_result_placeholder, $nested_table_make_url_data, $colspan);
 
                         $stmt = $conn->prepare("SELECT Incident_ID, Incident_Date, People_name, Incident_Report FROM `Incident` NATURAL JOIN `People` WHERE Vehicle_ID = ?");
                         $stmt->bind_param("i", $row_id);
@@ -165,7 +165,7 @@ render_navi_bar(__FILE__);
                             "id_column_name"=>"Incident_ID",
                         );
 
-                        render_nested_table($nested_table_caption, $nested_result, $nested_header_array, $no_result_placeholder, $nested_table_make_url_data);
+                        render_nested_table($nested_table_caption, $nested_result, $nested_header_array, $no_result_placeholder, $nested_table_make_url_data, $colspan);
                     }
                 }
                 end_search_table_and_bind_expand_url($table_id);

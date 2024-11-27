@@ -166,7 +166,7 @@ render_navi_bar(__FILE__);
                         $stmt->execute();
                         $nested_result = $stmt->get_result();
                         $nested_table_caption = "Owned Vehicles";
-                        $nested_header_array = array("Vehicle_ID"=>"ID","Vehicle_type"=>"Brand","Vehicle_plate"=>"Vehicle Plate","Vehicle_colour"=>"Color");
+                        $nested_header_array = array("Vehicle_ID"=>"ID","Vehicle_make"=>"Make","Vehicle_model"=>"Model","Vehicle_plate"=>"Vehicle Plate","Vehicle_colour"=>"Color");
                         $no_result_placeholder = "No owned vehicle found";
 
                         $nested_table_make_url_data = array(
