@@ -109,6 +109,15 @@ if (!isset($_SESSION[USERNAME])) {
             border: 2px solid #118bee;
         }
 
+        .btn_generic_search_form{
+            background-color: #118bee;
+            border: 2px solid #118bee;
+            border-radius: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         .hidden{
             display:none !important;
         }
@@ -164,24 +173,38 @@ EOT;
                 </div>`;
                     return input_row_html
                 }
+
+                function form_search_button_html(label_text, required, input_name, checkmark_id, wrapper_id, button_id, invisible_input_id, placeholder=""){
+                    const required_asterisk = required?"*":" ";
+                    const input_row_html = `
+                <div style="display: flex; flex-direction: row;" id=${wrapper_id}>
+                    <label class="password-change-star-label">${required_asterisk}</label>
+                    <label class="password-change-input-label">${label_text}</label>
+                    <input name="${input_name}" id="${invisible_input_id}" class="hidden">
+                    <button type="button" name="${input_name}_button" id ="${button_id}" class="form-control form-control-normal btn-primary btn btn_generic_search_form">${placeholder}</button>
+                    <label id="${checkmark_id}" class="password-change-mark-label" style="color: green;"></label>
+                </div>`;
+                    return input_row_html
+                }
+
                 function space_html(id=""){
                     const id_string = id == "" ? "" : `id='${id}'`;
                     const space_html = `<div style="margin: 1rem;" ${id_string}></div>`;
                     return space_html
                 }
-                function owner_input_radio_html(){
+                function owner_input_radio_html(prefix){
                     return `
         <div style="display: flex; flex-direction: row;">
             <label class = "password-change-star-label">*</label>
                             <label class = "password-change-input-label">Ownership</label>
             <label style="margin-right: 1rem;">
-                <input type="radio" name="ownership_input" value="select_existing"> Select Existing
+                <input type="radio" name="${prefix}ownership_input" value="select_existing"> Select Existing
             </label>
             <label style="margin-right: 1rem;">
-                <input type="radio" name="ownership_input" value="input_new"> Input New
+                <input type="radio" name="${prefix}ownership_input" value="input_new"> Input New
             </label>
             <label style="margin-right: 1rem;">
-                <input type="radio" name="ownership_input" value="leave_it_empty" checked> Leave it empty
+                <input type="radio" name="${prefix}ownership_input" value="leave_it_empty" checked> Leave it empty
             </label>
         </div>`
                 }
@@ -234,9 +257,10 @@ EOT;
                     new_form_group.innerHTML += space_html();
                     new_form_group.innerHTML += form_input_html("Color", false, `${prefix}color`, "checkmark_color",`${prefix}color`);
                     new_form_group.innerHTML += space_html();
-                    new_form_group.innerHTML += owner_input_radio_html();
+                    new_form_group.innerHTML += owner_input_radio_html(prefix);
                     new_form_group.innerHTML += space_html();
-                    new_form_group.innerHTML += form_input_html("Owner Select", false, `${prefix}owner`, "checkmark_owner",`${prefix}owner_select`);
+                    new_form_group.innerHTML += form_search_button_html("Owner Select", false, `${prefix}owner`, "checkmark_owner",`${prefix}owner_select`,`${prefix}owner_select_button`,`${prefix}owner_select_input`, "Select People");
+                    //new_form_group.innerHTML += form_input_html("Owner Select", false, `${prefix}owner`, "checkmark_owner",`${prefix}owner_select`);
                     new_form_group.innerHTML += form_input_html("Owner Name", false, `${prefix}owner_name`, "checkmark_owner_name",`${prefix}owner_name`);
                     new_form_group.innerHTML += space_html(`${prefix}new_owner_space_1`);
                     new_form_group.innerHTML += form_input_html("Owner Address", false, `${prefix}owner_address`, "checkmark_owner_address",`${prefix}owner_address`);
@@ -266,8 +290,9 @@ EOT;
                     display_new_owner_input(prefix,false);
 
                     form.addEventListener('change', function(event) {
-                        if (event.target.type === 'radio' && event.target.name === 'ownership_input') {
-                            const selected_ownership_input = document.querySelector('input[name="ownership_input"]:checked');
+
+                        if (event.target.type === 'radio' && event.target.name === `${prefix}ownership_input`) {
+                            const selected_ownership_input = document.querySelector(`input[name="${prefix}ownership_input"]:checked`);
                             if(selected_ownership_input){
                                 if(selected_ownership_input.value == "select_existing"){
                                     display_select_owner_input(prefix, true);
