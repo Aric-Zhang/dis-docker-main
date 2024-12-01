@@ -37,6 +37,15 @@ function end_modal($modal_id, $button_id_modal_close){
 EOT;
     echo $end_modal_doc;
 }
+function end_modal_no_script(){
+    $end_modal_doc = <<<EOT
+                                </div>
+                            </div>
+                        </div>
+
+EOT;
+    echo $end_modal_doc;
+}
 function bind_modal_to_open_button($modal_id, $button_id)
 {
     $bind_modal_doc = <<<EOT
@@ -65,4 +74,51 @@ function bind_modal_to_cancel_button($modal_id, $button_id){
 EOT;
     echo $bind_modal_cancel_doc;
 }
+function start_modal_in_script($modal_id, $button_id_modal_close, $title_text){
+    $start_modal_doc = <<<EOT
+                        <div id= "$modal_id" class="modal-background">
+                            <div class="modal-content">
+                                <span id="$button_id_modal_close" class="close-button">&times;</span>
+                                <div style="margin: 2rem;">
+                                    <div style="height: 42px; font-size: 1.5rem; margin-bottom: 1rem; color:#10263B;" class="text-center-label">
+                                        $title_text
+                                    </div>
+EOT;
+    echo $start_modal_doc;
+}
+function bind_modal_to_open_button_in_script($modal_id, $button_id)
+{
+    $bind_modal_doc = <<<EOT
+
+                            var modal = document.getElementById(`$modal_id`);
+                            var openBtn = document.getElementById(`$button_id`);
+
+                            openBtn.onclick = function(event) {
+                                event.preventDefault();
+                                modal.style.display = "flex";
+                                console.log("Open Modal");
+                            }
+
+EOT;
+    echo $bind_modal_doc;
+}
+function bind_modal_to_close_button_in_script($modal_id, $button_id_modal_close){
+    $end_modal_doc = <<<EOT
+                            var modal = document.getElementById(`$modal_id`);
+                            var closeBtn = document.getElementById(`$button_id_modal_close`);
+
+                            closeBtn.onclick = function() {
+                                event.stopPropagation();
+                                modal.style.display = "none";
+                            }
+
+                            window.onclick = function(event) {
+                                if (event.target == modal) {
+                                    modal.style.display = "none";
+                                }
+                            }
+EOT;
+    echo $end_modal_doc;
+}
+
 ?>

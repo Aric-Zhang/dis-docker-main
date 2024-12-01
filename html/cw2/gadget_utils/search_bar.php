@@ -16,6 +16,7 @@ class SearchOptionRenderer{
 
     var $dropdown_menu_id;
     var $dropdown_button_id;
+    var $dropdown_button_min_width = '13rem';
 
     function set_parameters(
         $invisible_input_id,
@@ -91,7 +92,7 @@ class SearchOptionRenderer{
 
         $start_search_opt_button_doc = <<<EOT
                 <input id="$invisible_input_id" type="text" name="$invisible_input_name" style="display: none" value="$search_default_type">
-                <button id="$search_opt_button_id" class="btn btn-primary form_control_search dropdown_button" type="button">
+                <button id="$search_opt_button_id" class="btn btn-primary form_control_search dropdown_button" style="min-width: $this->dropdown_button_min_width;" type="button">
                     <span id="$search_opt_button_text_id">$button_default_text</span>
 EOT;
         $bind_function_script_doc=<<<EOT
@@ -136,9 +137,9 @@ EOT;
         echo $end_search_opt_button_doc;
     }
 }
-function start_search_bar(){
+function start_search_bar($action=""){
     $start_search_bar_doc = <<<EOT
-        <form action="" class="general_form" method="get">
+        <form action="$action" class="general_form" method="get">
             <div class="form-group search_input_wrapper">
 EOT;
     echo $start_search_bar_doc;
@@ -150,7 +151,7 @@ function end_search_bar(){
 EOT;
     echo $end_search_bar_doc;
 }
-function render_search_input_and_button($input_id,$input_name,$placeholder)
+function render_search_input_and_button($input_id,$input_name,$placeholder,$button_id = "")
 {
     $input_init_value = "";
     if(isset($_GET[$input_name])){
@@ -161,7 +162,7 @@ function render_search_input_and_button($input_id,$input_name,$placeholder)
                     <input id='$input_id' type="text" name="$input_name" class="form-control form_control_search search_input" placeholder="$placeholder" value="$input_init_value">
 EOT;
     $search_button_doc = <<<EOT
-                    <button class="btn btn-primary form_control_search search_button" type="submit">Search</button>
+                    <button class="btn btn-primary form_control_search search_button" type="submit" id="$button_id">Search</button>
 EOT;
 
     echo $search_input_doc;
