@@ -121,11 +121,21 @@ if (!isset($_SESSION[USERNAME])) {
         }
 
         .btn_modal_search_result{
+            background-color: #FDFBF9;
             border: 1px solid #CFD4D8;
             width: 100%;
-            margin: 0.5rem;
+            margin: 0.5rem 0;
             border-radius: 5px;
             display: flex;
+        }
+
+        .scrollable-modal-container {
+            max-height: 300px;
+            min-height: 100px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
         }
 
         .hidden{
@@ -159,7 +169,7 @@ EOT;
         $button_id_modal_close = "close_modal_button";
         $button_id_modal_open = "change_password_button";
         $button_id_modal_cancel = "password-change-cancel-button";
-        start_modal($modal_id , $button_id_modal_close, "Change Your Password");
+        start_modal($modal_id , $button_id_modal_close, "Search Owner");
         ?>
         <?php
         $context_input_id = "search_context";
@@ -212,7 +222,7 @@ EOT;
         render_search_input_and_button($search_input_id, $search_input_name, "",$search_button_id);
         end_search_bar();
         ?>
-        <div id="results"> </div>
+        <div id="results" class="scrollable-modal-container"> </div>
         <?php
             $bind_search_ajax_doc = <<<EOT
                 <script>
@@ -248,6 +258,7 @@ EOT;
                 } else if (data.results.length === 0) {
                     
                 } else {
+                    reset_searching_results();
                     data.results.forEach(result => {
                         const resultItem = document.createElement('div');
                         resultItem.className = 'result-item';
