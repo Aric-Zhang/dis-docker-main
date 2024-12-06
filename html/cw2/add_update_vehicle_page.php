@@ -21,126 +21,7 @@ if (!isset($_SESSION[USERNAME])) {
     <style>
         @import "../css/dis_cw2_common.css";
 
-        .add_form_container{
-            margin: 1rem;
-            padding: 1rem;
-        }
 
-        .form-group-wrapper{
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between ;
-            align-items: center;
-            width: 100%;
-            padding-top: 1rem;
-            padding-left: 1rem;
-            padding-right: 1rem;
-            margin: 0.5rem 0.5rem 0.5rem 0;
-            border: 1px solid #CFD4D8;
-            border-radius: 8px;
-        }
-
-        .add_row_button{
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 40px;
-            height: 40px;
-            border: none;
-            border-radius: 2rem;
-            font-size: 4rem;
-            color: #ffffff;
-            background-color: #CFD4D8; /* 按钮背景颜色 */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
-        .add_row_button:hover{
-            background-color: #aaaaaa; /* 按钮背景颜色 */
-        }
-        .add_row_button::before,
-        .add_row_button::after {
-            content: '';
-            position: absolute;
-            background-color: #ffffff; /* 加号颜色 */
-
-        }
-        .add_row_button::before {
-            width: 4px;
-            height: 30px;
-            left: 50%;
-            top: 5px;
-            transform: translateX(-50%)
-        }
-        .add_row_button::after {
-            width: 30px;
-            height: 4px;
-            left: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .del_row_button{
-            margin: 1rem;
-        }
-
-        .del_row_button::after{
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* 加号阴影效果 */
-        }
-
-        .del_row_button::before{
-            width: 0;
-            height: 0;
-        }
-
-        .flex_row{
-            display: flex;
-            flex-direction: row;
-            width: 100%;
-        }
-
-        .btn_generic_form{
-            background-color: #118bee;
-            border: 2px solid #118bee;
-            border-radius: 8px;
-            width: 100%;
-        }
-
-        .btn_generic_form_cancel{
-            background-color: white;
-            color: #118bee;
-            border: 2px solid #118bee;
-        }
-
-        .btn_generic_search_form{
-            background-color: #118bee;
-            border: 2px solid #118bee;
-            border-radius: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .btn_modal_search_result{
-            background-color: #FDFBF9;
-            border: 1px solid #CFD4D8;
-            width: 100%;
-            margin: 0.5rem 0;
-            border-radius: 5px;
-            display: flex;
-        }
-
-        .scrollable-modal-container {
-            max-height: 300px;
-            min-height: 100px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-
-        .hidden{
-            display:none !important;
-        }
     </style>
 </head>
 <body>
@@ -295,7 +176,6 @@ EOT;
             })
             .catch(error => {
                 console.error('Error:', error);
-
             });
             
         });
@@ -310,7 +190,7 @@ EOT;
         ?>
         <form id="dynamic-form" class="login-form" method="post">
             <p style="color: dimgrey;">Fields marked with an <span style="color: red;">*</span> are required</p>
-            <button id="add-row_button" class="add_row_button btn" onclick="add_vehicle_form_group()" type="button"> </button>
+            <button id="add-row_button" class="add_row_button btn" onclick="add_vehicle_form_group('form-group-wrapper')" type="button"> </button>
             <div style="margin: 1rem"></div>
             <div class="login-form-submit form group">
                 <div class="password-change-row-wrapper">
@@ -334,14 +214,6 @@ EOT;
                     return input_row_html
                 }
 
-                function simple_search_bar_modal(prefix){
-                    const search_bar_html = `
-                        <input id = "${prefix}modal_search_input" type = "text" placeholder="Type in name or Licence">
-                        <span id = "${prefix}modal_search_button" class = "btn"> A </span>
-                    `;
-                    return search_bar_html;
-                }
-
                 function form_search_button_html(label_text, required, input_name, checkmark_id, wrapper_id, button_id, invisible_input_id, placeholder=""){
                     const required_asterisk = required?"*":" ";
                     const input_row_html = `
@@ -355,7 +227,6 @@ EOT;
                 </div>`;
                     return input_row_html
                 }
-
                 function space_html(id=""){
                     const id_string = id == "" ? "" : `id='${id}'`;
                     const space_html = `<div style="margin: 1rem;" ${id_string}></div>`;
@@ -403,11 +274,11 @@ EOT;
                         }
                     }
                 }
-                function add_vehicle_form_group(){
+                function add_vehicle_form_group(wrapper_id_prefix){
                     const form = document.getElementById("dynamic-form");
                     const new_form_group_wrapper = document.createElement("div");
                     new_form_group_wrapper.className = "form-group-wrapper";
-                    const new_form_group_wrapper_id = `vehicle_group_wrapper_${form_group_count}`;
+                    const new_form_group_wrapper_id = `${wrapper_id_prefix}_${form_group_count}`;
                     new_form_group_wrapper.id = new_form_group_wrapper_id;
 
                     const new_form_group = document.createElement("div");
@@ -469,6 +340,7 @@ EOT;
                         modal.style.display = "flex";
                         context_input.value = prefix
                     }
+                    
                     form.addEventListener('change', function(event) {
 
                         if (event.target.type === 'radio' && event.target.name === `${prefix}ownership_input`) {
