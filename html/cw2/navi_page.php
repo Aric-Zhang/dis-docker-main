@@ -35,6 +35,7 @@ render_navi_bar(__FILE__);
         array("icon_file_name"=>'vehicles_icon.png',"text"=>'Search Vehicle',"href"=>"search_vehicle_page.php"),
         array("icon_file_name"=>'traffic_violation.png',"text"=>'Search Incident',"href"=>"search_incident_page.php"),
         array("icon_file_name"=>'person_icon.png',"text"=>'Add or Update Vehicle',"href"=>"add_update_vehicle_page.php"),
+        array("icon_file_name"=>'person_icon.png',"text"=>'Report Incident',"href"=>"report_incident.php"),
     ) ;
     render_grid(__FILE__, $grid_item_info_array);
 ?>
