@@ -20,18 +20,21 @@ function end_modal($modal_id, $button_id_modal_close){
                             </div>
                         </div>
                         <script>
-                            var modal = document.getElementById("$modal_id");
-                            var closeBtn = document.getElementById("$button_id_modal_close");
+                        function set_${modal_id}_close(){
+                            const ${modal_id} = document.getElementById("$modal_id");
+                            const ${button_id_modal_close} = document.getElementById("$button_id_modal_close");
 
-                            closeBtn.onclick = function() {
-                                modal.style.display = "none";
+                            $button_id_modal_close.onclick = function() {
+                                $modal_id.style.display = "none";
                             }
 
                             window.onclick = function(event) {
-                                if (event.target == modal) {
-                                    modal.style.display = "none";
+                                if (event.target == $modal_id) {
+                                    $modal_id.style.display = "none";
                                 }
                             }
+                        }
+                        set_${modal_id}_close()
                         </script>
 
 EOT;

@@ -98,9 +98,16 @@ render_navi_bar(__FILE__);
                                   $target_select_input_id,
                                   $target_select_button_id,
                                   $target_php_file_path,
-                                  $col_id_name ,
-                                  $col_name_name,
-                                  $col_licence_name){
+                                  $col_id_name,
+                                  $col_names_array){
+            //$col_names_array = array($col_name_name, $col_licence_name);
+            $js_col_names_array_string = "new Array(";
+            foreach ($col_names_array as $col_name){
+                $js_col_names_array_string .= "'".$col_name."',";
+            }
+            $js_col_names_array_string = rtrim($js_col_names_array_string,",");
+            $js_col_names_array_string.=")";
+
             $bind_search_ajax_doc = <<<EOT
                 <script>
                 function reset_${modal_id}_searching_results(){
@@ -114,6 +121,7 @@ render_navi_bar(__FILE__);
             const search_type_input = document.getElementById('$invisible_input_id');
             const resultsContainer = document.getElementById('$result_container_id');
             const prefix = '$modal_id.'
+            const col_names_array = $js_col_names_array_string ;
             
             const data = {
                 $invisible_input_name: search_type_input.value,
@@ -143,17 +151,18 @@ render_navi_bar(__FILE__);
                         <div>
                             <input name="id" value=\${result.$col_id_name} style="display:none" id='\${prefix}\${result.$col_id_name}.id_input' />
                             <button class="btn btn_modal_search_result" id='\${prefix}\${result.$col_id_name}.confirm_button'>
-                                <span style = "flex: 0 0 50%; text-align: left;">
-                                \${result.$col_name_name}
-                                </span>
-                                <span style = "flex: 0 0 50%; text-align: left;"> 
-                                \${result.$col_licence_name}
-                                </span>
                             </button>
                         </div>
                         `;
                         resultsContainer.appendChild(resultItem);
-                        
+                        var button = document.getElementById(`\${prefix}\${result.$col_id_name}.confirm_button`)
+                        for(var i = 0; i<col_names_array.length; i++ ){
+                            var col_name = col_names_array[i];
+                            button.innerHTML += `                                
+                                <span style = "flex: 0 0 50%; text-align: left;">
+                                \${result[col_name]}
+                                </span>`
+                        }
                         
                         const confirm_button = document.getElementById(`\${prefix}\${result.$col_id_name}.confirm_button`)
                         confirm_button.onclick = function() {
@@ -179,6 +188,8 @@ EOT;
             echo $bind_search_ajax_doc;
         }
 
+        $col_name_array = array($col_name_name, $col_licence_name);
+
         bind_search_ajax($modal_id,
             $search_button_id,
             $search_input_id,
@@ -190,19 +201,168 @@ EOT;
             $driver_select_button_id,
             $target_php_file_path,
             $col_id_name,
-            $col_name_name,
-            $col_licence_name );
+            $col_name_array );
 
         end_modal($modal_id, $button_id_modal_close);
         ?>
+
+
         <?php
         $vehicle_modal_id = "search_vehicle_modal";
         $button_id_modal_close = "close_vehicle_modal_button";
 
         start_modal($vehicle_modal_id , $button_id_modal_close, "Search Vehicle");
+        $search_people_renderer = new SearchOptionRenderer();
 
+        $link_id_1 = "search_type_general";
+        $link_id_2 = "search_type_brand";
+        $link_id_3 = "search_type_plate";
+        $link_id_4 = "search_type_id";
+        $text_1 = "General Search";
+        $text_2 = "Search Brand";
+        $text_3 = "Search Plate";
+        $text_4 = "Search ID";
+        $type_1 = "general";
+        $type_2 = "brand";
+        $type_3 = "plate";
+        $type_4 = "id";
+        $placeholder_1 = "Type in vehicle\'s brand or plate";
+        $placeholder_2 = "Type in vehicle\'s brand";
+        $placeholder_3 = "Type in vehicle\'s driving license number";
+        $placeholder_4 = "Type in vehicle\'s exact ID number";
+
+        $vehicle_select_button_id = 'vehicle_select_button';
+        $vehicle_select_input_id = 'vehicle_select_input';
+
+        $search_input_id = "search_vehicle_input";
+        $search_input_name = "search_vehicle_text";
+        $search_button_id = "search_vehicle_button";
+        $invisible_input_id = "search_vehicle_type_input";
+        $invisible_input_name = "search_vehicle_type";
+
+        $search_people_renderer->set_parameters(
+            $invisible_input_id = $invisible_input_id,
+            $invisible_input_name = $invisible_input_name,
+            $search_opt_button_id = "dropdown-button-search-type-vehicle",
+            $search_opt_button_text_id = "dropdown-button-search-type-vehicle-text",
+            $dropdown_menu_item_type_placeholder_array = array(
+                array('id'=>$link_id_1, 'text'=>$text_1, 'type'=>$type_1, 'func'=>javascript_replace_placeholder_string($link_id_1, $search_input_id, $placeholder_1)),
+                array('id'=>$link_id_2, 'text'=>$text_2, 'type'=>$type_2, 'func'=>javascript_replace_placeholder_string($link_id_2, $search_input_id, $placeholder_2)),
+                array('id'=>$link_id_3, 'text'=>$text_3, 'type'=>$type_3, 'func'=>javascript_replace_placeholder_string($link_id_3, $search_input_id, $placeholder_3)),
+                array('id'=>$link_id_4, 'text'=>$text_4, 'type'=>$type_4, 'func'=>javascript_replace_placeholder_string($link_id_4, $search_input_id, $placeholder_4))
+            ),
+            $dropdown_menu_id = "dropdown-menu-search-type-vehicle",
+            $dropdown_button_id = "dropdown-button-search-type-vehicle"
+        );
+        $search_input_name = "search_vehicle_text";
+        $search_type_name = "search_vehicle_type";
+        start_search_bar();
+        $search_people_renderer->render();
+        render_search_input_and_button($search_input_id, $search_input_name, $placeholder_1, $search_button_id);
+        end_search_bar();
+
+        $driver_select_button_id = 'vehicle_select_button';
+        $driver_select_input_id = 'vehicle_select_input';
+        $target_php_file_path = 'search_vehicle.php';
+        $col_id_name = 'Vehicle_ID';
+        $col_make_name = 'Vehicle_make';
+        $col_name_name = 'Vehicle_model';
+        $col_licence_name = 'Vehicle_plate';
+        $result_container_id = 'vehicle_results';
+        echo "<div id=\"$result_container_id\" class=\"scrollable-modal-container\"> </div>";
+
+        $col_name_array = array($col_make_name, $col_name_name, $col_licence_name);
+
+        bind_search_ajax($vehicle_modal_id,
+            $search_button_id,
+            $search_input_id,
+            $invisible_input_id,
+            $result_container_id,
+            $invisible_input_name,
+            $search_input_name,
+            $driver_select_input_id,
+            $driver_select_button_id,
+            $target_php_file_path,
+            $col_id_name,
+            $col_name_array );
 
         end_modal($vehicle_modal_id, $button_id_modal_close);
+        ?>
+
+
+        <?php
+        $offence_modal_id = "search_offence_modal";
+        $button_id_modal_close = "close_offence_modal_button";
+
+        start_modal($offence_modal_id , $button_id_modal_close, "Search Offence");
+        $search_people_renderer = new SearchOptionRenderer();
+
+        $link_id_1 = "search_type_general";
+        $link_id_2 = "search_type_description";
+        $link_id_4 = "search_type_id";
+        $text_1 = "General Search";
+        $text_2 = "Search Description";
+        $text_4 = "Search ID";
+        $type_1 = "general";
+        $type_2 = "description";
+        $type_4 = "id";
+        $placeholder_1 = "Type in offence related information";
+        $placeholder_2 = "Type in offence\'s description";
+        $placeholder_4 = "Type in offence\'s exact ID number";
+
+        $offence_select_button_id = 'offence_select_button';
+        $offence_select_input_id = 'offence_select_input';
+
+        $search_input_id = "search_offence_input";
+        $search_input_name = "search_offence_text";
+        $search_button_id = "search_offence_button";
+        $invisible_input_id = "search_offence_type_input";
+        $invisible_input_name = "search_offence_type";
+
+        $search_people_renderer->set_parameters(
+            $invisible_input_id = $invisible_input_id,
+            $invisible_input_name = $invisible_input_name,
+            $search_opt_button_id = "dropdown-button-search-type-offence",
+            $search_opt_button_text_id = "dropdown-button-search-type-offence-text",
+            $dropdown_menu_item_type_placeholder_array = array(
+                array('id'=>$link_id_1, 'text'=>$text_1, 'type'=>$type_1, 'func'=>javascript_replace_placeholder_string($link_id_1, $search_input_id, $placeholder_1)),
+                array('id'=>$link_id_2, 'text'=>$text_2, 'type'=>$type_2, 'func'=>javascript_replace_placeholder_string($link_id_2, $search_input_id, $placeholder_2)),
+                array('id'=>$link_id_4, 'text'=>$text_4, 'type'=>$type_4, 'func'=>javascript_replace_placeholder_string($link_id_4, $search_input_id, $placeholder_4))
+            ),
+            $dropdown_menu_id = "dropdown-menu-search-type-offence",
+            $dropdown_button_id = "dropdown-button-search-type-offence"
+        );
+        $search_input_name = "search_offence_text";
+        $search_type_name = "search_offence_type";
+        start_search_bar();
+        $search_people_renderer->render();
+        render_search_input_and_button($search_input_id, $search_input_name, $placeholder_1, $search_button_id);
+        end_search_bar();
+
+        $driver_select_button_id = 'offence_select_button';
+        $driver_select_input_id = 'offence_select_input';
+        $target_php_file_path = 'search_offence.php';
+        $col_id_name = 'Offence_ID';
+        $col_name_name = 'Offence_description';
+        $result_container_id = 'offence_results';
+        echo "<div id=\"$result_container_id\" class=\"scrollable-modal-container\"> </div>";
+
+        $col_name_array = array($col_name_name);
+
+        bind_search_ajax($offence_modal_id,
+            $search_button_id,
+            $search_input_id,
+            $invisible_input_id,
+            $result_container_id,
+            $invisible_input_name,
+            $search_input_name,
+            $driver_select_input_id,
+            $driver_select_button_id,
+            $target_php_file_path,
+            $col_id_name,
+            $col_name_array );
+
+        end_modal($offence_modal_id, $button_id_modal_close);
         ?>
         <script src="../js/dynamic_form_elements.js">
         </script>
@@ -323,14 +483,14 @@ EOT;
 function bind_modal_open_button($modal_id, $openBtn_id){
     $bind_modal_open_button_doc = <<<EOT
             <script>
-                var modal_id = "$modal_id";
-                var openBtn_id = '$openBtn_id';
-                var modal = document.getElementById(modal_id);
-                var openBtn = document.getElementById(openBtn_id);
+                const ${modal_id}_id = "$modal_id";
+                const ${openBtn_id}_id = '$openBtn_id';
+                const $modal_id = document.getElementById(${modal_id}_id);
+                const $openBtn_id = document.getElementById(${openBtn_id}_id);
 
-                openBtn.onclick = function(event) {
+                $openBtn_id.onclick = function(event) {
                     event.preventDefault();
-                    modal.style.display = "flex";
+                    $modal_id.style.display = "flex";
                 }
             </script>
 EOT;
@@ -408,6 +568,13 @@ render_space_html();
 bind_select_or_new_group($form_id, $new_group_id_array, $vehicle_select_wrapper_id, $vehicle_input_option_name);
 bind_modal_open_button($vehicle_modal_id, $vehicle_select_button_id);
 
+$offence_select_wrapper_id = "offence_select_wrapper";
+$offence_select_button_id = 'offence_select_button';
+$offence_select_input_id = 'offence_select_input';
+
+render_form_search_button('Offence Select',true, 'offence','offence_checkmark',$offence_select_wrapper_id, $offence_select_button_id, $offence_select_input_id,"Select Offence");
+render_space_html();
+bind_modal_open_button($offence_modal_id, $offence_select_button_id);
 
 ?>
 
