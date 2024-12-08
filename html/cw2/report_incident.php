@@ -29,7 +29,7 @@ render_navi_bar(__FILE__);
 ?>
 <div class="main_page_wrapper">
     <div class = "add_form_container">
-        <h2>Add Vehicle Information</h2>
+        <h2>Report Incident</h2>
         <?php
         $modal_id = "myModal";
         $button_id_modal_close = "close_modal_button";

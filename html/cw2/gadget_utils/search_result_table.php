@@ -65,6 +65,7 @@ function render_vertical_expand_row_nested_table($row, $nested_table_caption, $n
     }
     end_nested_table();
 }
+
 function make_nested_table_detail_url($nested_sql_result_row, $nested_table_make_url_data) {
     $base_url = $nested_table_make_url_data["base_url"];
     $search_type_name = $nested_table_make_url_data["search_type_name"];

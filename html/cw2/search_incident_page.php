@@ -21,6 +21,26 @@ if (!isset($_SESSION[USERNAME])) {
     <title>DIS Home Page</title>
     <style>
         @import "../css/dis_cw2_common.css";
+
+        .link-button {
+            background: transparent;
+            border: none;
+            color: #516170;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: inherit;
+            font-family: inherit;
+            padding: 0;
+            margin: 0;
+            transition: color 0.3s ease;
+        }
+        .link-button:hover {
+            text-decoration: none;
+            color: #0056b3;
+        }
+        .link-button:active {
+            color: #004085;
+        }
     </style>
 </head>
 <body>
@@ -28,6 +48,81 @@ if (!isset($_SESSION[USERNAME])) {
 render_navi_bar(__FILE__);
 ?>
 <?php
+if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
+    foreach ($_POST as $key => $value) {
+        //echo $key.": ".$value."<br>";
+    }
+    $incident_id_alias = 'Incident_ID';
+    $id_column_name = 'Incident_ID';
+    if(isset($_POST[$incident_id_alias])){
+        $conn = start_mysql_connection();
+        $incident_id = $_POST[$incident_id_alias];
+        $nested_header_array = array("Incident_Report"=>"Report", "Fine_Amount"=>"Fine_Amount", "Fine_Points"=>"Fine_Points");
+        $flipped_header_array = array_flip($nested_header_array);
+        foreach ($_POST as $key => $value) {
+            if(isset($flipped_header_array[$key]) && $value != ''){
+                $col_name = $flipped_header_array[$key];
+                if($col_name == "Fine_Amount" || $col_name == "Fine_Points"){
+                    $max_fine = 0;
+                    $max_points = 0;
+
+                    $stmt = $conn->prepare("SELECT Offence_maxFine, Offence_maxPoints FROM Offence WHERE Offence_ID = (SELECT Offence_ID FROM Incident WHERE Incident_ID = ?)");
+                    $stmt->bind_param("i", $incident_id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    if($result->num_rows > 0){
+                        $row = $result->fetch_assoc();
+                        $max_fine = $row['Offence_maxFine'];
+                        $max_points = $row['Offence_maxPoints'];
+                    }
+
+                    $stmt = $conn->prepare("SELECT * FROM Fines WHERE Incident_ID = ?");
+                    $stmt->bind_param("i", $incident_id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    if($result->num_rows > 0){
+                        $row = $result->fetch_assoc();
+                        $fine_id =  $row['Fine_ID'];
+
+
+                        if($col_name == "Fine_Amount"){
+                            $value = min($value, $max_fine);
+                        }
+                        if($col_name == "Fine_Points"){
+                            $value = min($value, $max_points);
+                        }
+                        $stmt = $conn->prepare("UPDATE Fines SET $col_name = ? WHERE Incident_ID = ?");
+                        $stmt->bind_param("ii", $value, $incident_id);
+                        if($stmt->execute()){
+                            //echo "Update successful";
+                        }
+                    }
+                    else{
+                        $fine_amount = 0;
+                        $fine_points = 0;
+                        if($col_name == 'Fine_Amount'){
+                            $fine_amount = min($value, $max_fine);
+                        }
+                        else if($col_name == 'Fine_Points'){
+                            $fine_points = min($value, $max_points);
+                        }
+                        $stmt = $conn->prepare("INSERT INTO Fines (Fine_Amount, Fine_Points, Incident_ID) VALUES (?, ?, ?)");
+                        $stmt->bind_param("iii", $fine_amount,$fine_points, $incident_id);
+                        if($stmt->execute()){
+                            //echo "Insert successful";
+                        }
+                        $fine_id =  $conn->insert_id;
+                    }
+                }
+                elseif($col_name == "Incident_Report"){
+                    $stmt = $conn->prepare("UPDATE Incident SET $col_name = ? WHERE Incident_ID = ?");
+                    $stmt->bind_param("si", $value, $incident_id);
+                    $stmt->execute();
+                }
+            }
+        }
+    }
+}
 ?>
 <div class="main_page_wrapper">
     <div>
@@ -129,11 +224,47 @@ render_navi_bar(__FILE__);
                         $stmt->execute();
                         $nested_result = $stmt->get_result();
 
+                        function render_nested_editable_form($input_name, $input_value, $invisible_input_name, $invisible_input_value, $input_type='text')
+                        {
+                            $editable_form_doc = <<<EOT
+                                <form method="POST" style="max-height: 1rem; margin: 0; padding: 0; width: 100%; display: flex;">
+                                    <input type="hidden" name="$invisible_input_name" value="$invisible_input_value">
+                                    <input type="$input_type" name="$input_name" value="$input_value" style="border: none; flex-grow: 1; margin-right: 1rem;">
+                                    <button type="submit" style="height: 1rem; margin: 0; padding:0; color: #16417C" class="link-button">Confirm Modification</button>
+                                </form>
+EOT;
+                            echo $editable_form_doc;
+                        }
+
+                        function render_editable_vertical_expand_row_nested_table($row, $nested_table_caption, $nested_header_array, $id_name, $id, $colspan = 5, $nested_input_type_array = null) {
+                            start_nested_table($nested_table_caption, $colspan);
+
+                            foreach ($nested_header_array as $nested_header_name=>$nested_header_alias) {
+                                echo "<tr>";
+                                echo "<td>$nested_header_alias</td>";
+                                echo "<td>";
+                                if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
+                                    $input_type = 'text';
+                                    if($nested_input_type_array != null && isset($nested_input_type_array[$nested_header_name])){
+                                        $input_type = $nested_input_type_array[$nested_header_name];
+                                    }
+                                    render_nested_editable_form($nested_header_alias, $row[$nested_header_name], $id_name, $id, $input_type);
+                                }
+                                else {
+                                    echo $row[$nested_header_name];
+                                }
+                                echo "</td>";
+                                echo "</tr>";
+                            }
+                            end_nested_table();
+                        }
+
                         $nested_header_array = array("Incident_Report"=>"Report", "Fine_Amount"=>"Fine Amount", "Fine_Points"=>"Fine Points");
+                        $nested_input_type_array = array("Fine_Amount"=>"number", "Fine_Points"=>"number");
                         $nested_table_caption = "Incident Details and Fines";
                         if ($nested_result->num_rows > 0){
                             while ($nested_row = $nested_result->fetch_assoc()){
-                                render_vertical_expand_row_nested_table($nested_row, $nested_table_caption, $nested_header_array, $colspan);
+                                render_editable_vertical_expand_row_nested_table($nested_row, $nested_table_caption, $nested_header_array, $id_column_name, $row_id, $colspan, $nested_input_type_array);
                             }
                         }
 
@@ -185,7 +316,6 @@ render_navi_bar(__FILE__);
                 $stmt->close();
                 end_mysql_connection($conn);
             }
-
             ?>
         </div>
     </div>
