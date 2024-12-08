@@ -828,6 +828,11 @@ input, button, select, optgroup, textarea {
     margin-top: 20px;
 }
 
+.form-control-textarea{
+    min-height: 5rem;
+    border-radius: .2rem;
+}
+
 .hidden{
     display:none !important;
 }

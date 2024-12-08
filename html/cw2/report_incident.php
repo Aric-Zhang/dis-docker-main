@@ -20,6 +20,7 @@ if (!isset($_SESSION[USERNAME])) {
     <title>Report Incident</title>
     <style>
         @import "../css/dis_cw2_common.css";
+
     </style>
 </head>
 <body>
@@ -385,6 +386,20 @@ EOT;
     echo $form_input_doc;
 }
 
+function render_form_text_area($wrapper_id, $required_asterisk, $label_text, $input_name, $checkmark_id, $placeholder = '')
+{
+
+    $form_text_area_doc = <<<EOT
+                <div style="display: flex; flex-direction: row;" id=${wrapper_id}>
+                    <label class="password-change-star-label">${required_asterisk}</label>
+                    <label class="password-change-input-label">${label_text}</label>
+                    <textarea name="${input_name}" class="form-control form-control-normal form-control-textarea" placeholder="${placeholder}" rows="5"></textarea>
+                    <label id="${checkmark_id}" class="password-change-mark-label" style="color: green;"></label>
+                </div>
+EOT;
+    echo $form_text_area_doc;
+}
+
 function render_space_html($id=""){
     $id_string = $id == "" ? "" : "id='${id}'";
     $space_html_doc = <<<EOT
@@ -576,6 +591,11 @@ render_form_search_button('Offence Select',true, 'offence','offence_checkmark',$
 render_space_html();
 bind_modal_open_button($offence_modal_id, $offence_select_button_id);
 
+$report_wrapper_id = "report_select_wrapper";
+$report_input_name = 'report';
+
+render_form_text_area($report_wrapper_id, "*", 'Report Statement', $report_input_name, 'report_checkmark', $placeholder = 'Input statement here');
+render_space_html();
 ?>
 
             <div class="login-form-submit form group">
@@ -589,142 +609,98 @@ bind_modal_open_button($offence_modal_id, $offence_select_button_id);
     </div>
 </div>
 <?php
-//if($_SERVER['REQUEST_METHOD'] === 'POST'){
+if($_SERVER['REQUEST_METHOD'] === 'POST'){
+    foreach ($_POST as $key => $value) {
+        echo $key . ": " . $value . "<br>";
+    }
 //
 //    //Column name to shown name
 //    $id_column_name = 'People_ID';
-//    $conn = start_mysql_connection();
+
 //
-//    $people_col_name_to_alias = array("People_id"=>"owner","People_name"=>"owner_name","People_address"=>"owner_address","People_licence"=>"owner_licence");
-//    $vehicle_col_name_to_alias = array("Vehicle_plate"=>'plate',"Vehicle_make"=>'make',"Vehicle_model"=>'model',"Vehicle_colour"=>'color');
-//    $insert_row_info_array = array();
-//    foreach ($_POST as $key => $value) {
-//        $info_field = explode("_", $key,3);
-//        $row_number = $info_field[0];
-//        $table_name = $info_field[1];
-//        $record_key = $info_field[2];
-//        if(!isset($insert_row_info_array[$table_name])){
-//            $insert_row_info_array[$table_name] = array();
-//        }
-//        if(!isset($insert_row_info_array[$table_name][$row_number])){
-//            $insert_row_info_array[$table_name][$row_number] = array();
-//        }
-//        $insert_row_info_array[$table_name][$row_number][$record_key] = $value;
-//    }
-//    foreach ($insert_row_info_array as $table_name => $table_info_array) {
-//        foreach ($table_info_array as $row_number => $record_info_array) {
-//            $people_id = null;
-//            foreach ($record_info_array as $record_key => $record_value) {
-//                echo $record_key.":".$record_value."<br>";
-//
-//            }
-//            if($record_info_array['plate']!='') {
-//                if ($record_info_array['ownership_input'] == 'input_new') {
-//                    $people_name = $record_info_array[$people_col_name_to_alias["People_name"]];
-//                    $people_address = $record_info_array[$people_col_name_to_alias["People_address"]];
-//                    $people_licence = $record_info_array[$people_col_name_to_alias["People_licence"]];
-//                    if ($people_name != "" && $people_licence != "") {
-//                        $stmt = $conn->prepare("SELECT * FROM People WHERE People_licence = ?");
-//                        $stmt->bind_param("s", $people_licence);
-//                        $stmt->execute();
-//                        $result = $stmt->get_result();
-//                        if ($result->num_rows > 0) {
-//                            //echo "Found licence already in database";
-//                            while ($row = $result->fetch_assoc()) {
-//                                $people_id = $row["People_ID"];
-//                            }
-//                        } else {
-//                            $stmt = $conn->prepare("INSERT INTO People (People_name, People_address, People_licence) VALUES (?, ?, ?)");
-//                            $stmt->bind_param("sss", $people_name, $people_address, $people_licence);
-//                            if ($stmt->execute()) {
-//                                $people_id = $conn->insert_id;
-//                            }
-//                        }
-//                    }
-//                } elseif ($record_info_array['ownership_input'] == 'select_existing') {
-//                    $people_id = $record_info_array[$people_col_name_to_alias["People_id"]];
-//                    $stmt = $conn->prepare("SELECT * FROM People WHERE People_id = ?");
-//                    $stmt->bind_param("s", $people_id);
-//                    if ($stmt->execute()) {
-//                        $result = $stmt->get_result();
-//                        if ($result->num_rows == 0) {
-//                            $people_id = null;
-//                        }
-//                    } else {
-//                        $people_id = null;
-//                    }
-//                    echo "Existing People: " . $people_id . "<br>";
-//                }
-//                $vehicle_plate = $record_info_array[$vehicle_col_name_to_alias['Vehicle_plate']];
-//                $vehicle_make = $record_info_array[$vehicle_col_name_to_alias['Vehicle_make']];
-//                $vehicle_model = $record_info_array[$vehicle_col_name_to_alias['Vehicle_model']];
-//                $vehicle_colour = $record_info_array[$vehicle_col_name_to_alias['Vehicle_colour']];
-//
-//                $vehicle_id = null;
-//                $stmt = $conn->prepare("SELECT * FROM Vehicle WHERE Vehicle_plate = ?");
-//                $stmt->bind_param("s", $vehicle_plate);
-//                $stmt->execute();
-//                $result = $stmt->get_result();
-//                // update old
-//
-//                if ($result->num_rows > 0) {
-//                    $row = $result->fetch_assoc();
-//                    $vehicle_id = $row["Vehicle_ID"];
-//                    if($vehicle_make!=''){
-//                        $stmt = $conn->prepare("UPDATE Vehicle SET Vehicle_make = ? WHERE Vehicle_plate = ?");
-//                        $stmt->bind_param("ss", $vehicle_make, $vehicle_plate);
-//                        $stmt->execute();
-//                    }
-//                    if($vehicle_model!=''){
-//                        $stmt = $conn->prepare("UPDATE Vehicle SET Vehicle_model = ? WHERE Vehicle_plate = ?");
-//                        $stmt->bind_param("ss", $vehicle_model, $vehicle_plate);
-//                        $stmt->execute();
-//                    }
-//                    if($vehicle_colour!=''){
-//                        $stmt = $conn->prepare("UPDATE Vehicle SET Vehicle_colour = ? WHERE Vehicle_plate = ?");
-//                        $stmt->bind_param("ss", $vehicle_colour, $vehicle_plate);
-//                        $stmt->execute();
-//                    }
-//                    echo "Update Vehicle: " . $vehicle_id . "<br>";
-//                }
-//                else {
-//                    $stmt = $conn->prepare("INSERT INTO Vehicle (Vehicle_plate, Vehicle_make, Vehicle_model, Vehicle_colour) VALUES (?, ?, ?, ?)");
-//                    $stmt->bind_param("ssss", $vehicle_plate, $vehicle_make, $vehicle_model, $vehicle_colour);
-//                    if ($stmt->execute()) {
-//                        $vehicle_id = $conn->insert_id;
-//                        echo "Add Vehicle: " . $vehicle_id . "<br>";
-//                    }
-//                }
-//                if($people_id!=null && $vehicle_id!=null){
-//                    $stmt = $conn->prepare("SELECT * FROM Ownership WHERE Vehicle_ID = ?");
-//                    $stmt->bind_param("s", $vehicle_id);
-//                    $stmt->execute();
-//                    $result = $stmt->get_result();
-//                    if ($result->num_rows > 0) {
-//                        $stmt = $conn->prepare("UPDATE Ownership SET People_ID = ? WHERE Vehicle_ID = ?");
-//                        $stmt->bind_param("ss", $people_id, $vehicle_id);
-//                        if($stmt->execute()){
-//                            echo "Update Vehicle Ownership: " . $vehicle_id . "<br>";
-//                        }
-//                    }
-//                    else{
-//                        $stmt = $conn->prepare("INSERT INTO Ownership (People_ID, Vehicle_ID) VALUES (?, ?)");
-//                        $stmt->bind_param("ss", $people_id, $vehicle_id);
-//                        if($stmt->execute()){
-//                            echo "Add Vehicle Ownership: " . $vehicle_id . "<br>";
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    end_mysql_connection($conn);
-//
-//}
-//else{
-//
-//}
-//?>
+    $people_col_name_to_alias = array("People_ID"=>"driver","People_name"=>"driver_name","People_address"=>"driver_address","People_licence"=>"driver_licence");
+    $vehicle_col_name_to_alias = array("Vehicle_ID"=>"vehicle","Vehicle_plate"=>'vehicle_plate',"Vehicle_make"=>'vehicle_make',"Vehicle_model"=>'vehicle_model',"Vehicle_colour"=>'vehicle_color');
+    $select_existing = 'select_existing';
+    $input_new = 'input_new';
+
+    $date = $_POST['date'];
+    $people_input_option = $_POST['driver_input_option'];
+    $people_id = $_POST['driver'];
+    $people_name = $_POST['driver_name'];
+    $people_address = $_POST['driver_address'];
+    $people_licence = $_POST['driver_licence'];
+    $vehicle_input_option = $_POST['vehicle_input_option'];
+    $vehicle_id = $_POST['vehicle'];
+    $vehicle_model = $_POST['vehicle_model'];
+    $vehicle_make = $_POST['vehicle_make'];
+    $vehicle_plate = $_POST['vehicle_plate'];
+    $vehicle_color = $_POST['vehicle_color'];
+    $offence_id = $_POST['offence'];
+    $report = $_POST['report'];
+
+    $date_valid = ($date != '');
+    $driver_valid = ($people_id != '' && $people_input_option == $select_existing || $people_licence != '' && $people_input_option == $input_new);
+    $vehicle_valid = ($vehicle_id != '' && $vehicle_input_option == $select_existing || $vehicle_plate != '' && $vehicle_input_option == $input_new);
+    $offence_valid = ($offence_id != '');
+    $report_valid = ($report != '');
+
+    $valid = $date_valid && $driver_valid && $vehicle_valid && $offence_valid && $report_valid;
+
+    if(!$valid){
+        echo "Invalid input";
+        die();
+    }
+
+    $conn = start_mysql_connection();
+    if($people_input_option == $input_new){
+        $stmt = $conn->prepare("SELECT * FROM People WHERE People_licence = ?");
+        $stmt->bind_param("s", $people_licence);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            //echo "Found licence already in database";
+            while ($row = $result->fetch_assoc()) {
+                $people_id = $row["People_ID"];
+            }
+        } else {
+            $stmt = $conn->prepare("INSERT INTO People (People_name, People_address, People_licence) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $people_name, $people_address, $people_licence);
+            if ($stmt->execute()) {
+                $people_id = $conn->insert_id;
+                echo "Inserted People".$people_id."<br>";
+            }
+        }
+    }
+
+    if($vehicle_input_option == $input_new){
+        $stmt = $conn->prepare("SELECT * FROM Vehicle WHERE Vehicle_plate = ?");
+        $stmt->bind_param("s", $vehicle_plate);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            //echo "Found licence already in database";
+            while ($row = $result->fetch_assoc()) {
+                $vehicle_id = $row["Vehicle_ID"];
+            }
+        } else {
+            $stmt = $conn->prepare("INSERT INTO Vehicle (Vehicle_make, Vehicle_model, Vehicle_plate, Vehicle_colour) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssss", $vehicle_make, $vehicle_model, $vehicle_plate,  $vehicle_color);
+            if ($stmt->execute()) {
+                $vehicle_id = $conn->insert_id;
+                echo "Inserted Vehicle".$vehicle_id."<br>";
+            }
+        }
+    }
+
+    $stmt = $conn->prepare("INSERT INTO Incident (Vehicle_ID, People_ID, Incident_Date, Incident_Report, Offence_ID ) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("iissi", $vehicle_id, $people_id, $date, $report, $offence_id);
+    if($stmt->execute()){
+        $incident_id = $conn->insert_id;
+        echo "Incident ID: ".$incident_id."<br>";
+    }
+    $stmt->close();
+    end_mysql_connection($conn);
+}
+?>
 </body>
 </html>
