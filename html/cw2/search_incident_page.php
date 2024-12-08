@@ -22,25 +22,7 @@ if (!isset($_SESSION[USERNAME])) {
     <style>
         @import "../css/dis_cw2_common.css";
 
-        .link-button {
-            background: transparent;
-            border: none;
-            color: #516170;
-            text-decoration: underline;
-            cursor: pointer;
-            font-size: inherit;
-            font-family: inherit;
-            padding: 0;
-            margin: 0;
-            transition: color 0.3s ease;
-        }
-        .link-button:hover {
-            text-decoration: none;
-            color: #0056b3;
-        }
-        .link-button:active {
-            color: #004085;
-        }
+
     </style>
 </head>
 <body>
@@ -83,7 +65,6 @@ if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
                     if($result->num_rows > 0){
                         $row = $result->fetch_assoc();
                         $fine_id =  $row['Fine_ID'];
-
 
                         if($col_name == "Fine_Amount"){
                             $value = min($value, $max_fine);
@@ -208,7 +189,6 @@ if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
                 }
                 $search_page_alias = "Search incident: ";
                 $caption = $search_page_alias.$caption;
-                //$caption = "Found ".$result->num_rows." matched results";
                 $table_id = "search_res_table";
 
                 start_search_table($table_id, $caption, $table_headings_array);
@@ -224,47 +204,62 @@ if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
                         $stmt->execute();
                         $nested_result = $stmt->get_result();
 
-                        function render_nested_editable_form($input_name, $input_value, $invisible_input_name, $invisible_input_value, $input_type='text')
-                        {
-                            $editable_form_doc = <<<EOT
-                                <form method="POST" style="max-height: 1rem; margin: 0; padding: 0; width: 100%; display: flex;">
-                                    <input type="hidden" name="$invisible_input_name" value="$invisible_input_value">
-                                    <input type="$input_type" name="$input_name" value="$input_value" style="border: none; flex-grow: 1; margin-right: 1rem;">
-                                    <button type="submit" style="height: 1rem; margin: 0; padding:0; color: #16417C" class="link-button">Confirm Modification</button>
-                                </form>
-EOT;
-                            echo $editable_form_doc;
-                        }
-
-                        function render_editable_vertical_expand_row_nested_table($row, $nested_table_caption, $nested_header_array, $id_name, $id, $colspan = 5, $nested_input_type_array = null) {
-                            start_nested_table($nested_table_caption, $colspan);
-
-                            foreach ($nested_header_array as $nested_header_name=>$nested_header_alias) {
-                                echo "<tr>";
-                                echo "<td>$nested_header_alias</td>";
-                                echo "<td>";
-                                if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
-                                    $input_type = 'text';
-                                    if($nested_input_type_array != null && isset($nested_input_type_array[$nested_header_name])){
-                                        $input_type = $nested_input_type_array[$nested_header_name];
-                                    }
-                                    render_nested_editable_form($nested_header_alias, $row[$nested_header_name], $id_name, $id, $input_type);
-                                }
-                                else {
-                                    echo $row[$nested_header_name];
-                                }
-                                echo "</td>";
-                                echo "</tr>";
-                            }
-                            end_nested_table();
-                        }
 
                         $nested_header_array = array("Incident_Report"=>"Report", "Fine_Amount"=>"Fine Amount", "Fine_Points"=>"Fine Points");
                         $nested_input_type_array = array("Fine_Amount"=>"number", "Fine_Points"=>"number");
                         $nested_table_caption = "Incident Details and Fines";
                         if ($nested_result->num_rows > 0){
                             while ($nested_row = $nested_result->fetch_assoc()){
-                                render_editable_vertical_expand_row_nested_table($nested_row, $nested_table_caption, $nested_header_array, $id_column_name, $row_id, $colspan, $nested_input_type_array);
+                                $nested_table_id = gen_nested_table_id($nested_table_caption, $id_column_name, $row_id);
+                                $caption_button_function_name = $nested_table_id.'_submit_all';
+                                $caption_button_html = '';
+                                if($_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
+                                    $caption_button_html = caption_right_button('Submit All Modifications',$caption_button_function_name.'()');
+                                }
+                                render_editable_vertical_expand_row_nested_table($nested_row, $nested_table_caption, $nested_header_array, $id_column_name, $row_id, $colspan, $nested_input_type_array, $caption_button_html);
+
+                                $submit_all_in_table_doc = <<<EOT
+                                    <script>
+                                        function getFormsRecursively(element) {
+                                            let forms = [];
+                                            if (element.tagName.toLowerCase() === 'form') {
+                                                forms.push(element);
+                                            }
+                                            for (let i = 0; i < element.children.length; i++) {
+                                                forms = forms.concat(getFormsRecursively(element.children[i]));
+                                            }
+                                            return forms;
+                                        }
+                                                
+                                        function $caption_button_function_name () {
+                                            const nested_table_id = $nested_table_id ;
+                                            const table = document.getElementById('$nested_table_id');
+                                            const all_forms = getFormsRecursively(table)
+                                            
+                                            const combinedForm = document.createElement('form');
+                                            combinedForm.method = 'POST';
+                                            
+                                            for(var i = 0; i < all_forms.length; i++) {
+                                                var form = all_forms[i];
+                                                for (let i = 0; i < form.children.length; i++) {
+                                                    var children = form.children[i];
+                                                    if(children.tagName.toLowerCase() === 'input') {
+                                                        const hiddenField = document.createElement('input');
+                                                        hiddenField.type = 'hidden';
+                                                        hiddenField.name = children.name;
+                                                        hiddenField.value = children.value;
+                                                        combinedForm.appendChild(hiddenField);
+                                                        console.log(children.name +': ' + children.value);
+                                                    }
+                                                }
+                                            }
+                                            document.body.appendChild(combinedForm);
+                                            combinedForm.submit();
+                                        }
+                                    </script>
+EOT;
+                                echo $submit_all_in_table_doc;
+
                             }
                         }
 

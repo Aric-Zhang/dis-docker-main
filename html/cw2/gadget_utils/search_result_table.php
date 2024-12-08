@@ -2,12 +2,19 @@
 include_once $_SERVER['DOCUMENT_ROOT'].'/environment_constants.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/php_utils.php';
 
-function start_nested_table($nested_table_caption, $colspan){
+function caption_right_button($text, $onclick_function){
+    $button_html = "<button class='caption_button' onclick='${onclick_function} '>$text</button>";
+    return $button_html;
+}
+function start_nested_table($nested_table_caption, $colspan, $table_id = '' ,$caption_button_html = ''){
     $start_nested_table_doc = <<<EOT
                                 <tr class='selected_row'>
                                     <td colspan='$colspan' style='user-select: text'  class='zero-padding'> 
-                                    <table class='search_res_table_nested' style='user-select: text'>                
-                                        <caption>$nested_table_caption</caption>
+                                    <table class='search_res_table_nested' style='user-select: text;' id="$table_id">                
+                                        <caption style="position: relative">
+                                            <span>$nested_table_caption</span> 
+                                            $caption_button_html 
+                                        </caption>
                                             <tbody>
 EOT;
     echo $start_nested_table_doc;
@@ -147,4 +154,45 @@ EOT;
     echo $table_end;
     echo $bind_tr_url_script_doc;
 }
+
+function render_nested_editable_form($input_name, $input_value, $invisible_input_name, $invisible_input_value, $input_type='text')
+{
+    $editable_form_doc = <<<EOT
+                                <form method="POST" style="max-height: 1rem; margin: 0; padding: 0; width: 100%; display: flex;">
+                                    <input type="hidden" name="$invisible_input_name" value="$invisible_input_value">
+                                    <input type="$input_type" name="$input_name" value="$input_value" style="border: none; flex-grow: 1; margin-right: 1rem;">
+                                    <button type="submit" style="height: 1rem; margin: 0; padding:0; color: #16417C" class="link-button">Submit Modification</button>
+                                </form>
+EOT;
+    echo $editable_form_doc;
+}
+function gen_nested_table_id($nested_table_caption, $id_name, $id){
+    return str_replace(" ","_",$nested_table_caption)."_".$id_name."_".$id;
+}
+function render_editable_vertical_expand_row_nested_table($row, $nested_table_caption, $nested_header_array, $id_name, $id, $colspan = 5, $nested_input_type_array = null, $caption_button_html = '') {
+    $nested_table_id = gen_nested_table_id($nested_table_caption, $id_name, $id);
+    start_nested_table($nested_table_caption, $colspan, $nested_table_id, $caption_button_html);
+
+    foreach ($nested_header_array as $nested_header_name=>$nested_header_alias) {
+        echo "<tr>";
+        echo "<td>$nested_header_alias</td>";
+        echo "<td>";
+        if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
+            $input_type = 'text';
+            if($nested_input_type_array != null && isset($nested_input_type_array[$nested_header_name])){
+                $input_type = $nested_input_type_array[$nested_header_name];
+            }
+            render_nested_editable_form($nested_header_alias, $row[$nested_header_name], $id_name, $id, $input_type);
+        }
+        else {
+            echo $row[$nested_header_name];
+        }
+        echo "</td>";
+        echo "</tr>";
+    }
+    end_nested_table();
+
+
+}
+
 ?>

@@ -832,7 +832,34 @@ input, button, select, optgroup, textarea {
     min-height: 5rem;
     border-radius: .2rem;
 }
-
+.link-button {
+    background: transparent;
+    border: none;
+    color: #516170;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: inherit;
+    font-family: inherit;
+    padding: 0;
+    margin: 0;
+    transition: color 0.3s ease;
+}
+.link-button:hover {
+    text-decoration: none;
+    color: #0056b3;
+}
+.link-button:active {
+    color: #004085;
+}
+.caption_button{
+    border: 1px solid #CFD4D8;
+    border-radius: 3px;
+    position: absolute;
+    display: inline-block;
+    right: 0.3rem;
+    top: 0.35rem;
+    cursor: pointer;
+}
 .hidden{
     display:none !important;
 }
