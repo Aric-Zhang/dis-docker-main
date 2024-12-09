@@ -102,6 +102,7 @@ if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
                 }
             }
         }
+        end_mysql_connection($conn);
     }
 }
 ?>
