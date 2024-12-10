@@ -6,6 +6,7 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'grid_container.php'
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'modal.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'search_bar.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'form_elements.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'toast.php';
 
 session_start();
 if (!isset($_SESSION[USERNAME])) {
@@ -211,6 +212,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             $stmt->bind_param("sss", $username, $password, $authority);
             $stmt->execute();
             $id = $conn->insert_id;
+            store_alert_message('New account created successfully.');
             $stmt->close();
         }
 
@@ -220,3 +222,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 ?>
 </body>
 </html>
+<?php
+
+$message = fetch_alert_message();
+render_success_message_if_exist($message)
+
+?>

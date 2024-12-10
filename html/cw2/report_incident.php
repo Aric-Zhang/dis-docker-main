@@ -6,6 +6,7 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'grid_container.php'
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'modal.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'search_bar.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'form_elements.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'toast.php';
 
 session_start();
 if (!isset($_SESSION[USERNAME])) {
@@ -474,7 +475,7 @@ render_space_html();
 <?php
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
     foreach ($_POST as $key => $value) {
-        echo $key . ": " . $value . "<br>";
+        //echo $key . ": " . $value . "<br>";
     }
 //
 //    //Column name to shown name
@@ -510,7 +511,25 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $valid = $date_valid && $driver_valid && $vehicle_valid && $offence_valid && $report_valid;
 
     if(!$valid){
-        echo "Invalid input";
+        if(!$date_valid) {
+            store_alert_message("Invalid date input");
+        }
+        else if(!$driver_valid){
+            store_alert_message("Invalid driver input");
+        }
+        else if(!$vehicle_valid){
+            store_alert_message("Invalid vehicle input");
+        }
+        else if(!$offence_valid){
+            store_alert_message("Invalid offence input");
+        }
+        else if(!$report_valid){
+            store_alert_message("Invalid report input");
+        }
+        else{
+            store_alert_message("Valid input");
+        }
+        render_warning_message_if_exist(fetch_alert_message());
         die();
     }
 
@@ -530,7 +549,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             $stmt->bind_param("sss", $people_name, $people_address, $people_licence);
             if ($stmt->execute()) {
                 $people_id = $conn->insert_id;
-                echo "Inserted People".$people_id."<br>";
+
+                record_insert_people($conn, $people_id, $people_name, $people_licence);
+
             }
         }
     }
@@ -550,7 +571,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             $stmt->bind_param("ssss", $vehicle_make, $vehicle_model, $vehicle_plate,  $vehicle_color);
             if ($stmt->execute()) {
                 $vehicle_id = $conn->insert_id;
-                echo "Inserted Vehicle".$vehicle_id."<br>";
+
+                record_insert_vehicle($conn, $vehicle_id, $vehicle_make, $vehicle_model, $vehicle_plate);
+                //echo "Inserted Vehicle".$vehicle_id."<br>";
             }
         }
     }
@@ -559,11 +582,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $stmt->bind_param("iissi", $vehicle_id, $people_id, $date, $report, $offence_id);
     if($stmt->execute()){
         $incident_id = $conn->insert_id;
-        echo "Incident ID: ".$incident_id."<br>";
+
+        record_insert_incident($conn, $incident_id, $vehicle_id, $people_id, $offence_id, $date);
+        //echo "Incident ID: ".$incident_id."<br>";
     }
     $stmt->close();
     end_mysql_connection($conn);
 }
+render_success_message_if_exist(fetch_alert_message());
 ?>
 </body>
 </html>

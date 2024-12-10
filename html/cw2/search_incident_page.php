@@ -6,6 +6,7 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'grid_container.php'
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'dropdown_menu.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'search_bar.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'search_result_table.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'toast.php';
 
 session_start();
 if (!isset($_SESSION[USERNAME])) {
@@ -13,21 +14,6 @@ if (!isset($_SESSION[USERNAME])) {
     header("Location: ".$login_relative_path);
     die();
 }
-?>
-<html lang="en-GB">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DIS Home Page</title>
-    <style>
-        @import "../css/dis_cw2_common.css";
-
-
-    </style>
-</head>
-<body>
-<?php
-render_navi_bar(__FILE__);
 ?>
 <?php
 if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
@@ -76,6 +62,7 @@ if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
                         $stmt->bind_param("ii", $value, $incident_id);
                         if($stmt->execute()){
                             //echo "Update successful";
+                            record_update_fine($conn, $fine_id, $col_name, $value);
                         }
                     }
                     else{
@@ -83,16 +70,20 @@ if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
                         $fine_points = 0;
                         if($col_name == 'Fine_Amount'){
                             $fine_amount = min($value, $max_fine);
+                            $value = $fine_amount;
                         }
                         else if($col_name == 'Fine_Points'){
                             $fine_points = min($value, $max_points);
+                            $value = $fine_points;
                         }
                         $stmt = $conn->prepare("INSERT INTO Fines (Fine_Amount, Fine_Points, Incident_ID) VALUES (?, ?, ?)");
                         $stmt->bind_param("iii", $fine_amount,$fine_points, $incident_id);
                         if($stmt->execute()){
                             //echo "Insert successful";
+                            $fine_id =  $conn->insert_id;
+                            record_insert_fine($conn, $fine_id, $col_name, $value);
                         }
-                        $fine_id =  $conn->insert_id;
+
                     }
                 }
                 elseif($col_name == "Incident_Report"){
@@ -105,6 +96,22 @@ if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
         end_mysql_connection($conn);
     }
 }
+render_success_message_if_exist(fetch_alert_message());
+?>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIS Home Page</title>
+    <style>
+        @import "../css/dis_cw2_common.css";
+
+
+    </style>
+</head>
+<body>
+<?php
+render_navi_bar(__FILE__);
 ?>
 <div class="main_page_wrapper">
     <div>

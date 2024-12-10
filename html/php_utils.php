@@ -87,4 +87,187 @@ function start_mysql_connection(){
 function end_mysql_connection($conn){
     mysqli_close($conn);
 }
+function store_alert_message($message){
+    if(isset($_SESSION["message"])){
+        $_SESSION["message"] = $_SESSION["message"].$message."<br>";
+    }
+    else {
+        $_SESSION['message'] = $message."<br>";
+    }
+}
+function fetch_alert_message(){
+    if(isset($_SESSION['message'])){
+        $message = $_SESSION['message'];
+        unset($_SESSION['message']); // 清除会话中的消息
+        return $message;
+    }
+    return null;
+}
+function get_current_user_id($conn){
+    if(isset($_SESSION[USERNAME])){
+        $username = $_SESSION[USERNAME];
+        $stmt = $conn->prepare("SELECT ID FROM User WHERE Username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $user_id = $row["ID"];
+                $stmt->close();
+                return $user_id;
+            }
+        }
+        $stmt->close();
+    }
+    return null;
+}
+function record_insert_people($conn, $people_id, $people_name, $people_licence){
+    $user_id = get_current_user_id($conn);
+    $modification_type = 'Insert';
+    $current_time = date('Y-m-d H:i:s');
+    $modification_table = 'People';
+    $modification_description = "Inserted People ".$people_name." ".$people_licence;
+
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt->execute();
+    $operation_audit_trail_id = $conn->insert_id;
+    $stmt->close();
+    store_alert_message($modification_description);
+}
+function record_insert_vehicle($conn, $vehicle_id, $vehicle_make, $vehicle_model, $vehicle_plate){
+    $user_id = get_current_user_id($conn);
+    $modification_type = 'Insert';
+    $current_time = date('Y-m-d H:i:s');
+    $modification_table = 'Vehicle';
+    $modification_description = "Inserted Vehicle ".$vehicle_make." ".$vehicle_model." ".$vehicle_plate;
+
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt->execute();
+    $operation_audit_trail_id = $conn->insert_id;
+    $stmt->close();
+    store_alert_message($modification_description);
+}
+function record_insert_incident($conn, $incident_id, $vehicle_id, $people_id, $offence_id, $date){
+    $user_id = get_current_user_id($conn);
+    $modification_type = 'Insert';
+    $current_time = date('Y-m-d H:i:s');
+    $modification_table = 'Incident';
+
+    $vehicle_plate = '';
+    $people_name = '';
+    $offence_description = '';
+
+    $stmt = $conn->prepare("SELECT Vehicle_plate FROM Vehicle WHERE Vehicle_ID = ?");
+    $stmt->bind_param("i", $vehicle_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $vehicle_plate = $row["Vehicle_plate"];
+        }
+    }
+
+    $stmt = $conn->prepare("SELECT People_name FROM People WHERE People_ID = ?");
+    $stmt->bind_param("i", $people_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $people_name = $row["People_name"];
+        }
+    }
+
+    $stmt = $conn->prepare("SELECT Offence_description FROM Offence WHERE Offence_ID = ?");
+    $stmt->bind_param("i", $offence_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $offence_description = $row["Offence_description"];
+        }
+    }
+
+    $modification_description = 'Inserted Incident '.$people_name.' '.$offence_description.' for vehicle '.$vehicle_plate.' on '.$date;
+
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt->execute();
+    $operation_audit_trail_id = $conn->insert_id;
+    $stmt->close();
+    store_alert_message($modification_description);
+}
+function record_update_fine($conn, $fine_id, $col_name, $value){
+    $user_id = get_current_user_id($conn);
+    $modification_type = 'Update';
+    $current_time = date('Y-m-d H:i:s');
+    $modification_table = 'Fines';
+    $offence_description = '';
+
+    $stmt = $conn->prepare("SELECT Offence_description FROM Offence WHERE Offence_ID = (SELECT Offence_ID FROM Incident WHERE Incident_ID = (SELECT Incident_ID FROM Fines WHERE Fine_ID = ?))");
+    $stmt->bind_param("i", $fine_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $offence_description = $row["Offence_description"];
+        }
+    }
+
+    $modification_description = "Updated fine ";
+    if($col_name == "Fine_Amount"){
+        $modification_description.="amount for ".$offence_description." to ".$value;
+    }
+    elseif ($col_name == "Fine_Points"){
+        $modification_description.="points for ".$offence_description." to ".$value;;
+    }
+
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt->execute();
+    $operation_audit_trail_id = $conn->insert_id;
+    $stmt->close();
+    store_alert_message($modification_description);
+}
+function record_insert_fine($conn, $fine_id, $col_name, $value){
+    $user_id = get_current_user_id($conn);
+    $modification_type = 'Insert';
+    $current_time = date('Y-m-d H:i:s');
+    $modification_table = 'Fines';
+    $offence_description = '';
+
+    $stmt = $conn->prepare("SELECT Offence_description FROM Offence WHERE Offence_ID = (SELECT Offence_ID FROM Incident WHERE Incident_ID = (SELECT Incident_ID FROM Fines WHERE Fine_ID = ?))");
+    $stmt->bind_param("i", $fine_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $offence_description = $row["Offence_description"];
+        }
+    }
+
+    $modification_description = "Associate fine for ".$offence_description;
+
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt->execute();
+    $operation_audit_trail_id = $conn->insert_id;
+    store_alert_message($modification_description);
+
+    $modification_type = 'Update';
+    if($col_name == "Fine_Amount"){
+        $modification_description="Update fine amount for ".$offence_description." to ".$value;
+    }
+    elseif ($col_name == "Fine_Points"){
+        $modification_description="Update points for ".$offence_description." to ".$value;;
+    }
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt->execute();
+
+    $stmt->close();
+    store_alert_message($modification_description);
+
+}
 ?>
