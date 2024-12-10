@@ -184,6 +184,8 @@ render_navi_bar(__FILE__);
                     }
                 }
                 end_search_table_and_bind_expand_url($table_id);
+
+                record_search($conn, 'People', $search_type, $name_input);
                 $stmt->close();
                 end_mysql_connection($conn);
             }

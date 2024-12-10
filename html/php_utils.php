@@ -128,8 +128,8 @@ function record_insert_people($conn, $people_id, $people_name, $people_licence){
     $modification_table = 'People';
     $modification_description = "Inserted People ".$people_name." ".$people_licence;
 
-    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description, Modification_ref_ID) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssi", $user_id, $modification_type, $current_time, $modification_table, $modification_description, $people_id);
     $stmt->execute();
     $operation_audit_trail_id = $conn->insert_id;
     $stmt->close();
@@ -142,8 +142,8 @@ function record_insert_vehicle($conn, $vehicle_id, $vehicle_make, $vehicle_model
     $modification_table = 'Vehicle';
     $modification_description = "Inserted Vehicle ".$vehicle_make." ".$vehicle_model." ".$vehicle_plate;
 
-    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description, Modification_ref_ID) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssi", $user_id, $modification_type, $current_time, $modification_table, $modification_description, $vehicle_id);
     $stmt->execute();
     $operation_audit_trail_id = $conn->insert_id;
     $stmt->close();
@@ -191,8 +191,8 @@ function record_insert_incident($conn, $incident_id, $vehicle_id, $people_id, $o
 
     $modification_description = 'Inserted Incident '.$people_name.' '.$offence_description.' for vehicle '.$vehicle_plate.' on '.$date;
 
-    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description,Modification_ref_ID) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssi", $user_id, $modification_type, $current_time, $modification_table, $modification_description, $incident_id);
     $stmt->execute();
     $operation_audit_trail_id = $conn->insert_id;
     $stmt->close();
@@ -223,8 +223,8 @@ function record_update_fine($conn, $fine_id, $col_name, $value){
         $modification_description.="points for ".$offence_description." to ".$value;;
     }
 
-    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description, Modification_ref_ID) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssi", $user_id, $modification_type, $current_time, $modification_table, $modification_description, $fine_id);
     $stmt->execute();
     $operation_audit_trail_id = $conn->insert_id;
     $stmt->close();
@@ -249,8 +249,8 @@ function record_insert_fine($conn, $fine_id, $col_name, $value){
 
     $modification_description = "Associate fine for ".$offence_description;
 
-    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description,Modification_ref_ID) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssi", $user_id, $modification_type, $current_time, $modification_table, $modification_description, $fine_id);
     $stmt->execute();
     $operation_audit_trail_id = $conn->insert_id;
     store_alert_message($modification_description);
@@ -262,12 +262,25 @@ function record_insert_fine($conn, $fine_id, $col_name, $value){
     elseif ($col_name == "Fine_Points"){
         $modification_description="Update points for ".$offence_description." to ".$value;;
     }
-    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description,Modification_ref_ID) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssi", $user_id, $modification_type, $current_time, $modification_table, $modification_description, $fine_id);
     $stmt->execute();
 
     $stmt->close();
     store_alert_message($modification_description);
 
 }
+function record_search($conn, $modification_table, $search_type, $search_text){
+    $user_id = get_current_user_id($conn);
+    $modification_type = 'Other';
+    $current_time = date('Y-m-d H:i:s');
+    $modification_description = "Searched ".$modification_table." by ".$search_type." using input \"".$search_text."\"";
+
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("issss", $user_id, $modification_type, $current_time, $modification_table, $modification_description);
+    $stmt->execute();
+    $operation_audit_trail_id = $conn->insert_id;
+    $stmt->close();
+}
+
 ?>

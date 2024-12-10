@@ -24,6 +24,18 @@ if (!isset($_SESSION[USERNAME])) {
             border-color: #999999;
             padding: .5rem 1rem;
         }
+
+        .audit_trail_simple{
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .audit_trail_simple th, .audit_trail_simple td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eaeaea;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -153,14 +165,39 @@ bind_modal_to_open_button($modal_id, $button_id_modal_open);
             <div class="right-column">
                 <div class="profile_in_column_block">
                     <div class="profile_in_block_column_wrapper">
-                        <span class = "profile_block_title">Operation History</span>
-                        <ul>
-                            <li>History</li>
-                            <li>History</li>
-                            <li>History</li>
-                            <li>History</li>
-                            <li>History</li>
-                        </ul>
+                        <span class = "profile_block_title">Recent Operation History</span>
+                        <?php
+
+                        $conn = start_mysql_connection();
+                        $user_id = get_current_user_id($conn);
+                        $stmt = $conn->prepare("SELECT * FROM `Modification` WHERE `User_ID`=? ORDER BY Modification_ID DESC LIMIT 6");
+                        $stmt->bind_param("i", $user_id);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+
+                        $modification_name_to_alias_array = array("Modification_datetime"=>"Time","Modification_description"=>"Description");
+                        echo "<table class='audit_trail_simple'>";
+                        echo "<thead>";
+                        foreach ($modification_name_to_alias_array as $key => $value) {
+                            echo "<th>".$value."</th>";
+                        }
+                        echo "</thead>";
+                        echo "<tbody>";
+                        if($result->num_rows > 0){
+                            while($row = $result->fetch_assoc()) {
+                                echo "<tr>";
+                                foreach ($modification_name_to_alias_array as $key => $value) {
+                                    echo "<td>" . $row[$key] . "</td>";
+                                }
+                                echo "</tr>";
+                            }
+                        }
+
+                        echo "</tbody>";
+                        echo "</table>";
+                        $stmt->close();
+                        end_mysql_connection($conn);
+                        ?>
                         <div style="margin: 0.5rem;"></div>
                     </div>
                 </div>

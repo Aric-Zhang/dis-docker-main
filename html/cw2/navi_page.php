@@ -38,7 +38,9 @@ render_navi_bar(__FILE__);
         array("icon_file_name"=>'person_icon.png',"text"=>'Report Incident',"href"=>"report_incident.php")
     ) ;
     if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN ){
-        array_push($grid_item_info_array, array("icon_file_name"=>'person_icon.png',"text"=>'Create New Account',"href"=>"create_new_account_page.php"));
+        array_push($grid_item_info_array,
+            array("icon_file_name"=>'person_icon.png',"text"=>'Create New Account',"href"=>"create_new_account_page.php"),
+            array("icon_file_name"=>'person_icon.png',"text"=>'Audit Trail',"href"=>"search_modification_page.php"));
     }
     render_grid(__FILE__, $grid_item_info_array);
 ?>
