@@ -135,7 +135,6 @@ function record_insert_people($conn, $people_id, $people_name, $people_licence){
     $stmt->close();
     store_alert_message($modification_description);
 }
-
 function record_update_people($conn, $people_id, $col_name, $value){
     $user_id = get_current_user_id($conn);
     $modification_type = 'Update';
@@ -165,6 +164,99 @@ function record_insert_vehicle($conn, $vehicle_id, $vehicle_make, $vehicle_model
     $current_time = date('Y-m-d H:i:s');
     $modification_table = 'Vehicle';
     $modification_description = "Inserted Vehicle ".$vehicle_make." ".$vehicle_model." ".$vehicle_plate;
+
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description, Modification_ref_ID) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssi", $user_id, $modification_type, $current_time, $modification_table, $modification_description, $vehicle_id);
+    $stmt->execute();
+    $operation_audit_trail_id = $conn->insert_id;
+    $stmt->close();
+    store_alert_message($modification_description);
+}
+function record_update_ownership($conn, $people_id, $vehicle_id){
+    $user_id = get_current_user_id($conn);
+    $modification_type = 'Update';
+    $current_time = date('Y-m-d H:i:s');
+    $modification_table = 'Ownership';
+
+    $vehicle_plate = '';
+    $stmt = $conn->prepare("SELECT Vehicle_plate FROM Vehicle WHERE Vehicle_ID = ?");
+    $stmt->bind_param("i", $vehicle_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if($result->num_rows > 0) {
+        $vehicle_plate = $result->fetch_assoc()['Vehicle_plate'];
+    }
+
+    $people_name = '';
+    $stmt = $conn->prepare("SELECT People_name FROM People WHERE People_ID = ?");
+    $stmt->bind_param("i", $people_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if($result->num_rows > 0) {
+        $people_name = $result->fetch_assoc()['People_name'];
+    }
+
+    $modification_description = "Updated ownership of ".$vehicle_plate." to ".$people_name;
+
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description, Modification_ref_ID) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssi", $user_id, $modification_type, $current_time, $modification_table, $modification_description, $vehicle_id);
+    $stmt->execute();
+    $operation_audit_trail_id = $conn->insert_id;
+    $stmt->close();
+    store_alert_message($modification_description);
+}
+function record_insert_ownership($conn, $people_id, $vehicle_id){
+    $user_id = get_current_user_id($conn);
+    $modification_type = 'Insert';
+    $current_time = date('Y-m-d H:i:s');
+    $modification_table = 'Ownership';
+
+    $vehicle_plate = '';
+    $stmt = $conn->prepare("SELECT Vehicle_plate FROM Vehicle WHERE Vehicle_ID = ?");
+    $stmt->bind_param("i", $vehicle_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if($result->num_rows > 0) {
+        $vehicle_plate = $result->fetch_assoc()['Vehicle_plate'];
+    }
+
+    $people_name = '';
+    $stmt = $conn->prepare("SELECT People_name FROM People WHERE People_ID = ?");
+    $stmt->bind_param("i", $people_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if($result->num_rows > 0) {
+        $people_name = $result->fetch_assoc()['People_name'];
+    }
+
+    $modification_description = "Inserted ownership of ".$vehicle_plate." to ".$people_name;
+
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description, Modification_ref_ID) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssi", $user_id, $modification_type, $current_time, $modification_table, $modification_description, $vehicle_id);
+    $stmt->execute();
+    $operation_audit_trail_id = $conn->insert_id;
+    $stmt->close();
+    store_alert_message($modification_description);
+}
+function record_update_vehicle($conn, $vehicle_id, $col_name, $value){
+    $user_id = get_current_user_id($conn);
+    $modification_type = 'Insert';
+    $current_time = date('Y-m-d H:i:s');
+    $modification_table = 'Vehicle';
+    $modification_description = "Updated vehicle ";
+    if($col_name == 'Vehicle_make'){
+        $modification_description.="make to ".$value;
+    }
+    else if($col_name == 'Vehicle_model'){
+        $modification_description.="model to ".$value;
+    }
+    else if($col_name == 'Vehicle_plate'){
+        $modification_description.="plate to ".$value;
+    }
+    else if($col_name == 'Vehicle_colour'){
+        $modification_description.="colour to ".$value;
+    }
+
 
     $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description, Modification_ref_ID) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("issssi", $user_id, $modification_type, $current_time, $modification_table, $modification_description, $vehicle_id);

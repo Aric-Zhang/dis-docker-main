@@ -5,6 +5,7 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'navi_bar.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'grid_container.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'modal.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'search_bar.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'toast.php';
 
 session_start();
 if (!isset($_SESSION[USERNAME])) {
@@ -194,14 +195,13 @@ EOT;
                 <div class="password-change-row-wrapper">
                     <button id="password-change-confirm-button" class="btn btn-primary btn_generic_form" type="submit">Submit</button>
                     <div style="width: 2rem;"></div>
-                    <button id="password-change-cancel-button" class="btn btn-primary btn_generic_form btn_generic_form_cancel" type="reset">Cancel</button>
+                    <button id="password-change-cancel-button" class="btn btn-primary btn_generic_form btn_generic_form_cancel" type="reset" onclick="location.reload()">Cancel</button>
                 </div>
             </div>
             <script src="../js/dynamic_form_elements.js">
             </script>
             <script>
                 let form_group_count = 0
-
 
                 function display_new_owner_input(prefix, display = true){
                     var suffixes= ["owner_name","new_owner_space_1","owner_address","new_owner_space_2","owner_licence"];
@@ -334,10 +334,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     foreach ($insert_row_info_array as $table_name => $table_info_array) {
         foreach ($table_info_array as $row_number => $record_info_array) {
             $people_id = null;
-            foreach ($record_info_array as $record_key => $record_value) {
-                echo $record_key.":".$record_value."<br>";
-
-            }
+//            foreach ($record_info_array as $record_key => $record_value) {
+//                echo $record_key.":".$record_value."<br>";
+//
+//            }
             if($record_info_array['plate']!='') {
                 if ($record_info_array['ownership_input'] == 'input_new') {
                     $people_name = $record_info_array[$people_col_name_to_alias["People_name"]];
@@ -373,7 +373,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                     } else {
                         $people_id = null;
                     }
-                    echo "Existing People: " . $people_id . "<br>";
+                    store_alert_message("Existing People: " . $people_id);
                 }
                 $vehicle_plate = $record_info_array[$vehicle_col_name_to_alias['Vehicle_plate']];
                 $vehicle_make = $record_info_array[$vehicle_col_name_to_alias['Vehicle_make']];
@@ -393,26 +393,31 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                     if($vehicle_make!=''){
                         $stmt = $conn->prepare("UPDATE Vehicle SET Vehicle_make = ? WHERE Vehicle_plate = ?");
                         $stmt->bind_param("ss", $vehicle_make, $vehicle_plate);
-                        $stmt->execute();
+                        if($stmt->execute()){
+                            record_update_vehicle($conn, $vehicle_id, 'Vehicle_make', $vehicle_make);
+                        }
                     }
                     if($vehicle_model!=''){
                         $stmt = $conn->prepare("UPDATE Vehicle SET Vehicle_model = ? WHERE Vehicle_plate = ?");
                         $stmt->bind_param("ss", $vehicle_model, $vehicle_plate);
-                        $stmt->execute();
+                        if($stmt->execute()){
+                            record_update_vehicle($conn, $vehicle_id, 'Vehicle_model', $vehicle_model);
+                        }
                     }
                     if($vehicle_colour!=''){
                         $stmt = $conn->prepare("UPDATE Vehicle SET Vehicle_colour = ? WHERE Vehicle_plate = ?");
                         $stmt->bind_param("ss", $vehicle_colour, $vehicle_plate);
-                        $stmt->execute();
+                        if($stmt->execute()){
+                            record_update_vehicle($conn, $vehicle_id, 'Vehicle_colour', $vehicle_colour);
+                        }
                     }
-                    echo "Update Vehicle: " . $vehicle_id . "<br>";
                 }
                 else {
                     $stmt = $conn->prepare("INSERT INTO Vehicle (Vehicle_plate, Vehicle_make, Vehicle_model, Vehicle_colour) VALUES (?, ?, ?, ?)");
                     $stmt->bind_param("ssss", $vehicle_plate, $vehicle_make, $vehicle_model, $vehicle_colour);
                     if ($stmt->execute()) {
                         $vehicle_id = $conn->insert_id;
-                        echo "Add Vehicle: " . $vehicle_id . "<br>";
+                        record_insert_vehicle($conn, $vehicle_id, $vehicle_make, $vehicle_model, $vehicle_plate);
                     }
                 }
                 if($people_id!=null && $vehicle_id!=null){
@@ -424,23 +429,22 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                         $stmt = $conn->prepare("UPDATE Ownership SET People_ID = ? WHERE Vehicle_ID = ?");
                         $stmt->bind_param("ss", $people_id, $vehicle_id);
                         if($stmt->execute()){
-                            echo "Update Vehicle Ownership: " . $vehicle_id . "<br>";
+                            record_update_ownership($conn, $people_id, $vehicle_id);
                         }
                     }
                     else{
                         $stmt = $conn->prepare("INSERT INTO Ownership (People_ID, Vehicle_ID) VALUES (?, ?)");
                         $stmt->bind_param("ss", $people_id, $vehicle_id);
                         if($stmt->execute()){
-                            echo "Add Vehicle Ownership: " . $vehicle_id . "<br>";
+                            record_insert_ownership($conn, $people_id, $vehicle_id);
                         }
                     }
                 }
             }
         }
     }
-
+    render_success_message_if_exist(fetch_alert_message());
     end_mysql_connection($conn);
-
 }
 else{
 

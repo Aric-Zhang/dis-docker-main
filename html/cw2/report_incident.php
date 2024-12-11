@@ -432,7 +432,6 @@ $new_vehicle_space_3_id = 'new_vehicle_space_3';
 
 $new_group_id_array = array($vehicle_model_wrapper_id, $vehicle_make_wrapper_id, $vehicle_plate_wrapper_id, $vehicle_color_wrapper_id, $new_vehicle_space_1_id, $new_vehicle_space_2_id, $new_vehicle_space_3_id);
 
-
 render_owner_input_radio($vehicle_input_option_name, 'Vehicle Input Option');
 render_space_html();
 render_form_search_button('Vehicle Select',false, 'vehicle','vehicle_checkmark',$vehicle_select_wrapper_id, $vehicle_select_button_id, $vehicle_select_input_id,"Select Vehicle");
@@ -466,7 +465,7 @@ render_space_html();
                 <div class="password-change-row-wrapper">
                     <button id="password-change-confirm-button" class="btn btn-primary btn_generic_form" type="submit">Submit</button>
                     <div style="width: 2rem;"></div>
-                    <button id="password-change-cancel-button" class="btn btn-primary btn_generic_form btn_generic_form_cancel" type="reset">Cancel</button>
+                    <button id="password-change-cancel-button" class="btn btn-primary btn_generic_form btn_generic_form_cancel" type="reset" onclick="location.reload()">Cancel</button>
                 </div>
             </div>
         </form>
