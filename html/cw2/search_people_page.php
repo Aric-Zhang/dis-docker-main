@@ -6,6 +6,7 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'grid_container.php'
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'dropdown_menu.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'search_bar.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'search_result_table.php';
+include_once $_SERVER['DOCUMENT_ROOT'].'/'.GADGET_UTILS_DIR.'toast.php';
 
 session_start();
 if (!isset($_SESSION[USERNAME])) {
@@ -13,6 +14,33 @@ if (!isset($_SESSION[USERNAME])) {
     header("Location: ".$login_relative_path);
     die();
 }
+?>
+<?php
+if(isset($_SESSION[AUTHORITY]) && $_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
+    foreach ($_POST as $key => $value) {
+        //echo $key.": ".$value."<br>";
+    }
+    $id_alias = 'People_ID';
+    $id_column_name = 'People_ID';
+    if(isset($_POST[$id_alias])){
+        $conn = start_mysql_connection();
+        $people_id = $_POST[$id_alias];
+        $nested_header_array = array("People_name"=>"Name", "People_address"=>"Address", "People_licence"=>"Driving_Licence");
+        $flipped_header_array = array_flip($nested_header_array);
+        foreach ($_POST as $key => $value) {
+            if(isset($flipped_header_array[$key]) && $value != ''){
+                $col_name = $flipped_header_array[$key];
+                $stmt = $conn->prepare("UPDATE People SET $col_name = ? WHERE People_ID = ?");
+                $stmt->bind_param("si", $value, $people_id);
+                if($stmt->execute()){
+                    record_update_people($conn, $people_id, $col_name, $value);
+                }
+            }
+        }
+        end_mysql_connection($conn);
+    }
+}
+render_success_message_if_exist(fetch_alert_message());
 ?>
 <html lang="en-GB">
 <head>
@@ -133,8 +161,58 @@ render_navi_bar(__FILE__);
                         $nested_people_url = make_nested_table_detail_url($row, $nested_table_make_url_data);
                         # todo: use this to generate other methods
                         $nested_header_array = array("People_name"=>"Name", "People_address"=>"Address", "People_licence"=>"Driving Licence");
-
-                        render_vertical_expand_row_nested_table($row, $nested_table_caption, $nested_header_array);
+                        $nested_table_id = gen_nested_table_id($nested_table_caption, $id_column_name, $row_id);
+                        $caption_button_function_name = $nested_table_id.'_submit_all';
+                        $caption_button_html = '';
+                        if($_SESSION[AUTHORITY] == AUTHORITY_ADMIN){
+                            $caption_button_html = caption_right_button('Submit All Modifications',$caption_button_function_name.'()');
+                        }
+                        render_editable_vertical_expand_row_nested_table($row, $nested_table_caption, $nested_header_array, $id_column_name, $row_id, $colspan, array(), $caption_button_html);
+                        # render_vertical_expand_row_nested_table($row, $nested_table_caption, $nested_header_array);
+                        function bind_submit_all_in_table_script($caption_button_function_name, $nested_table_id){
+                            $submit_all_in_table_doc = <<<EOT
+                                    <script>
+                                        function getFormsRecursively(element) {
+                                            let forms = [];
+                                            if (element.tagName.toLowerCase() === 'form') {
+                                                forms.push(element);
+                                            }
+                                            for (let i = 0; i < element.children.length; i++) {
+                                                forms = forms.concat(getFormsRecursively(element.children[i]));
+                                            }
+                                            return forms;
+                                        }
+                                                
+                                        function $caption_button_function_name () {
+                                            const nested_table_id = $nested_table_id ;
+                                            const table = document.getElementById('$nested_table_id');
+                                            const all_forms = getFormsRecursively(table)
+                                            
+                                            const combinedForm = document.createElement('form');
+                                            combinedForm.method = 'POST';
+                                            
+                                            for(var i = 0; i < all_forms.length; i++) {
+                                                var form = all_forms[i];
+                                                for (let i = 0; i < form.children.length; i++) {
+                                                    var children = form.children[i];
+                                                    if(children.tagName.toLowerCase() === 'input') {
+                                                        const hiddenField = document.createElement('input');
+                                                        hiddenField.type = 'hidden';
+                                                        hiddenField.name = children.name;
+                                                        hiddenField.value = children.value;
+                                                        combinedForm.appendChild(hiddenField);
+                                                        console.log(children.name +': ' + children.value);
+                                                    }
+                                                }
+                                            }
+                                            document.body.appendChild(combinedForm);
+                                            combinedForm.submit();
+                                        }
+                                    </script>
+EOT;
+                            echo $submit_all_in_table_doc;
+                        }
+                        bind_submit_all_in_table_script($caption_button_function_name, $nested_table_id);
 
                         $stmt = $conn->prepare("SELECT Incident_ID, Incident_Date, Vehicle_plate, Incident_Report FROM `Incident`
                                                             NATURAL JOIN People 
@@ -194,5 +272,10 @@ render_navi_bar(__FILE__);
         </div>
     </div>
 </div>
+<?php
+    foreach ($_POST as $key => $value) {
+        echo $key . ": " . $value . "<br>";
+    }
+?>
 </body>
 </html>

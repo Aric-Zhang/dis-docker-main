@@ -135,6 +135,30 @@ function record_insert_people($conn, $people_id, $people_name, $people_licence){
     $stmt->close();
     store_alert_message($modification_description);
 }
+
+function record_update_people($conn, $people_id, $col_name, $value){
+    $user_id = get_current_user_id($conn);
+    $modification_type = 'Update';
+    $current_time = date('Y-m-d H:i:s');
+    $modification_table = 'People';
+    $modification_description = "Updated People ";
+    if($col_name == 'People_name'){
+        $modification_description.="name to ".$value;
+    }
+    else if($col_name == 'People_address'){
+        $modification_description.="address to ".$value;
+    }
+    else if($col_name == 'People_licence'){
+        $modification_description.="driving licence to ".$value;
+    }
+
+    $stmt = $conn->prepare("INSERT INTO Modification (User_ID, Modification_type, Modification_datetime, Modification_table, Modification_description, Modification_ref_ID) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssi", $user_id, $modification_type, $current_time, $modification_table, $modification_description, $people_id);
+    $stmt->execute();
+    $operation_audit_trail_id = $conn->insert_id;
+    $stmt->close();
+    store_alert_message($modification_description);
+}
 function record_insert_vehicle($conn, $vehicle_id, $vehicle_make, $vehicle_model, $vehicle_plate){
     $user_id = get_current_user_id($conn);
     $modification_type = 'Insert';
