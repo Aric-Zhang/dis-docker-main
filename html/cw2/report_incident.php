@@ -577,8 +577,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         }
     }
 
-    $stmt = $conn->prepare("INSERT INTO Incident (Vehicle_ID, People_ID, Incident_Date, Incident_Report, Offence_ID ) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("iissi", $vehicle_id, $people_id, $date, $report, $offence_id);
+    $user_id = get_current_user_id($conn);
+    $stmt = $conn->prepare("INSERT INTO Incident (Vehicle_ID, People_ID, Incident_Date, Incident_Report, Offence_ID, User_ID ) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("iissii", $vehicle_id, $people_id, $date, $report, $offence_id, $user_id);
     if($stmt->execute()){
         $incident_id = $conn->insert_id;
 
