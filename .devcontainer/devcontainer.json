@@ -1,0 +1,26 @@
+{
+  "name": "DIS Docker LAMP",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "php-apache",
+  "runServices": ["mariadb", "phpmyadmin"],
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "forwardPorts": [80, 8081],
+  "portsAttributes": {
+    "80": {
+      "label": "DIS PHP application",
+      "onAutoForward": "openPreview"
+    },
+    "8081": {
+      "label": "phpMyAdmin",
+      "onAutoForward": "notify"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "xdebug.php-debug"
+      ]
+    }
+  }
+}

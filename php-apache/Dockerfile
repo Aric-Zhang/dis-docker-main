@@ -1,5 +1,15 @@
 FROM php:8.1-apache
 MAINTAINER stuart reeves
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        default-mysql-client \
+        git \
+        less \
+        unzip \
+        zip \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN docker-php-ext-install pdo pdo_mysql mysqli
 
 RUN pecl install xdebug && docker-php-ext-enable xdebug
