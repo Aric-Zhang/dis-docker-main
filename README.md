@@ -25,6 +25,33 @@ You can now point a browser at the following locations:
 	http://localhost:8081 - phpmyadmin interface
 
 
+## Cloud development with GitHub Codespaces
+
+This repository includes a dev container configuration for GitHub Codespaces.
+The codespace starts the same Docker Compose stack used locally:
+
+- `php-apache` serves the PHP application from `html/` on port `80`
+- `mariadb` initializes the coursework database from `mariadb/*.sql`
+- `phpmyadmin` is available on port `8081`
+
+To run the application in Codespaces:
+
+1. Open the repository on GitHub.
+2. Select **Code** → **Codespaces** → **Create codespace on current branch**.
+3. Wait for the dev container to build and for the forwarded ports to appear.
+4. Open the forwarded port labelled **DIS PHP application** to preview the app.
+5. Open the forwarded port labelled **phpMyAdmin** to inspect the database.
+
+Default demo credentials for the Coursework 2 application are:
+
+- Administrator: `admin` / `admin123`
+- Police officer: `officer` / `officer123`
+
+If you need to rebuild the database from the SQL seed data, remove the MariaDB
+data volume/directory and recreate the codespace or restart the Docker Compose
+stack so the files in `mariadb/` are imported again.
+
+
 ## Contents description
 
 html/ - all your HTML, PHP, CSS, JS etc. files go here (note that this dir includes example code from the module which you can use without citation in your coursework)
